@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Blacklist Management{% endblock %}
+
+{% block content %}
+<div id="blacklist-container" class="content">
+    <h2>Manage Blacklist</h2>
+
+    <!-- Flash Messages Display Area -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div id="flash-messages">
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <input type="text" name="domain" placeholder="Enter domain to add" required>
+        <button type="submit" name="add">Add Domain</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Serial No.</th>
+                <th>Domain Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for domain in domains %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ domain.domain }}</td>
+                <td>
+                    <form method="POST">
+                        <input type="hidden" name="domain_id" value="{{ domain.id }}">
+                        <button type="submit" name="delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

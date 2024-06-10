@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-wrapper">
+    <div class="left-content">
+        <!-- Other content can go here if needed -->
+    </div>
+    <div class="right-content">
+        <form id="domainExclusionMaterialForm">
+            <label for="domainFilter">Enter Domains to Exclude (one per line):</label>
+            <textarea id="domainFilter" name="domainFilter" placeholder="e.g.example.com" rows="5" style="width: 100%;"></textarea>
+            <button type="submit" class="exclude-button">Exclude Domains</button>
+            <button type="button" id="copyButton">Copy</button>
+            <button type="button" id="pasteButton">Paste</button>
+            <button type="button" id="resetButton">Reset</button>
+            <span id="statusMessage" style="margin-left: 10px;"></span>
+        </form>
+    </div>
+    
+</div>
+
+<div id="table-container">
+    <table id="seoDataTable" class="display" style="width:100%">
+        <thead>
+            <tr> <!-- Column titles -->
+                <th style="width:60px;">Date</th> <!-- New column for upload date -->
+                <th>Client URL</th>
+                <th style="max-width:80px;">Root Domain</th>
+                <th style="max-width:80px;">Anchor</th>
+                <th style="max-width:80px;"> Niche</th>
+                <th>RD</th>
+                <th>DR</th>
+                <th>Traffic</th>
+                <th>Placed Link</th>
+                <th>Placed On</th>
+            </tr>
+            <tr> <!-- Search filters -->
+                <th></th> <!-- New search filter for upload date -->
+                <th><input type="text" placeholder="Search Client URL" /></th>
+                <th><input type="text" placeholder="Search Root Domain" /></th>
+                <th><input type="text" placeholder="Search Anchor" /></th>
+                <th><input type="text" placeholder="Search Niche" /></th>
+                <th>
+                    <div style="display: flex; justify-content: space-between;">
+                        <input type="number" placeholder="Min RD" class="min-search" style="width: 49%;" />
+                        <input type="number" placeholder="Max RD" class="max-search" style="width: 49%;" />
+                    </div>
+                </th>
+                <th>
+                    <div style="display: flex; justify-content: space-between;">
+                        <input type="number" placeholder="Min DR" class="min-search" style="width: 49%;" />
+                        <input type="number" placeholder="Max DR" class="max-search" style="width: 49%;" />
+                    </div>
+                </th>
+                <th>
+                    <div style="display: flex; justify-content: space-between;">
+                        <input type="number" placeholder="Min Traffic" class="min-search" style="width: 49%;" />
+                        <input type="number" placeholder="Max Traffic" class="max-search" style="width: 49%;" />
+                    </div>
+                </th>
+                <th><input type="text" placeholder="Search Placed Link" /></th>
+                <th><input type="text" placeholder="Search Placed On" /></th>
+            </tr>
+        </thead>             
+        <tbody>
+            <!-- Data rows will be inserted here by DataTables -->
+        </tbody>
+    </table>
+</div>
+{% endblock %}

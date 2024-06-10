@@ -1,0 +1,339 @@
+body {
+    background: #F8F6F0;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    background: linear-gradient(to right, aqua, blue); /* Horizontal gradient */
+    margin-top: 0;
+    margin-bottom: 40px;
+    padding: 10px;
+}
+input {
+    padding: 3px 3px;
+    font-size: 16px;
+}
+button  {
+    padding: 3px 3px;
+    font-size: 16px;
+}
+
+.nav-bar {
+    margin: auto;
+    white-space: nowrap;
+    border-bottom: 1px solid #000000;
+    width: 700px;
+    padding: 0px 20px 20px 20px;
+    height: 41px;
+}
+
+.nav-bar ul {
+    padding: 0;
+    list-style: none;
+}
+
+.nav-bar ul li {
+    float: left;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.nav-bar ul li a {
+    text-decoration: none;
+    color: #000000;
+    background: #6db1e4;
+    border: 1px solid #000000;
+    padding: 20px 25px;
+    -webkit-border-top-right-radius: 10px;
+    -webkit-border-top-left-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    width: 100px;
+    display: block;
+    text-align: center;
+}
+
+.nav-bar ul li a:hover {
+    text-decoration: none;
+    color: #000000;
+    background: #96e0e9;
+    -moz-transition: background-color 200ms ease-in;
+    -webkit-transition: background-color 200ms ease-in;
+    -ms-transition: background-color 200ms ease-in;
+    -o-transition: background-color 200ms ease-in;
+    transition: background-color 200ms ease-in;
+}
+
+.nav-bar ul li a.active {
+    background-color: #ffffff; /* Change to your preferred active tab color */
+    color: #000000; /* Adjust text color if needed */
+    font-weight: bold; /* Optional: make active tab text bold */
+    border-bottom: 1px solid #ffffff;
+}
+
+
+.content {
+    margin: 20px 50px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 10px;
+}
+
+.header {
+    text-align: right;
+    padding: 10px 20px;
+    background-color: #f1f1f1;
+}
+
+.header p {
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+}
+
+.logout-link {
+    color: #007bff;
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 10px;
+    margin-right: 30px;
+}
+
+.logout-link:hover {
+    text-decoration: underline;
+}
+
+
+
+/* Login Form */
+
+.login-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 300px; /* Width can be adjusted based on your preference */
+    /* Optional: adds spacing around the container */
+    margin: auto; /* Helps in further centering in certain scenarios */
+}
+
+.login-form h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.login-button {
+    width: 100%;
+    padding: 1rem;
+    background: #007BFF;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.login-button:hover {
+    background: #0056b3;
+}
+
+/* SEO data table styling */
+
+.column_search {
+    width: 80%;  /* Adjust the width to your preference */
+    padding: 2px;
+    box-sizing: border-box;
+    margin: auto;
+    display: block;
+}
+
+#seoDataTable {
+    width: 100%; 
+    table-layout: fixed;
+}
+
+
+#seoDataTable th, #seoDataTable td {
+    /* white-space: nowrap;  */
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    max-width: 150px; 
+}
+
+#seoDataTable td {
+    border: 1px solid #dbc9c9;
+    padding:5px;
+  }
+
+.input-wrapper {
+    display: flex;   /* Uses flexbox to lay out children side by side */
+    justify-content: space-between; /* Spaces the children evenly */
+}
+
+.input-wrapper input {
+    flex: 1 0 45%; /* Each input takes up roughly half of the wrapper's width */
+    margin: 2px; /* Small margin for visual separation */
+}
+
+#seoDataTable thead input {
+    width: 100%; /* Adjust width as necessary */
+    box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+}
+
+#seoDataTable thead th div {
+    display: flex;
+    justify-content: space-between; /* Distributes space evenly between the inputs */
+}
+
+.content-wrapper {
+    display: flex;             
+    justify-content: flex-end; 
+    align-items: start;         
+    padding: 20px;            
+}
+
+.left-content {
+    flex-grow: 1;               /* Allow it to take up all available space */
+}
+
+.right-content {
+    font-size: 18px;
+    flex-grow: 1;               /* Limit size to content width */
+    max-width: 50%;             /* Max width of the right content */
+}
+
+.exclude-button, #copyButton, #pasteButton, #resetButton {
+    font-size: 18px;
+    padding: 5px 10px;
+    margin: 5px;
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.exclude-button:hover, #copyButton:hover, #pasteButton:hover, #resetButton:hover {
+    background-color: #e2e2e2;
+}
+
+#statusMessage {
+    display: inline-block;
+    color: green;            /* Color for success messages */
+    font-weight: bold;
+}
+
+/* Upload Form Seperator */
+.form-separator {
+    margin: 30px 0; /* Adds vertical space before and after the separator */
+    border-top: 1px solid #ccc; /* Adds a line for visual separation */
+}
+
+.blacklist-content {
+    background-color: #f4f4f4;  /* Example: different background */
+    padding: 20px;
+    margin-top: 10px;
+    border: 1px solid #ddd;  /* Example: add a border */
+}
+
+
+/* Styling for the blacklist management container */
+#blacklist-container {
+    width: 60%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 5px;
+}
+
+#blacklist-container h2 {
+    color: #333;
+    text-align: center;
+}
+
+/* Style for the form inside the blacklist container */
+#blacklist-container form.add-domain-form {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#blacklist-container input[type="text"] {
+    width: 60%;
+    padding: 8px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#blacklist-container button {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#blacklist-container button:hover {
+    background-color: #45a049;
+}
+
+/* Styling for the table displaying the blacklisted domains within the blacklist container */
+#blacklist-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#blacklist-container table th, #blacklist-container table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#blacklist-container table th {
+    background-color: #f2f2f2;
+}
+
+#blacklist-container table tr:hover {
+    background-color: #f5f5f5;
+}
+
+#blacklist-container table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#flash-messages .alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: #fff;
+}
+
+.alert.success {
+    background-color: #4CAF50; /* Green for success messages */
+}
+
+.alert.error {
+    background-color: #f44336; /* Red for error messages */
+}
