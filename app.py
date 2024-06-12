@@ -54,6 +54,7 @@ def login():
 
 
 
+
 @app.route('/logout')
 def logout():
     logout_user()

@@ -20,6 +20,15 @@
         {% if current_user.is_authenticated %}
             <p>Hi Rohin Dua! <a href="{{ url_for('logout') }}" class="logout-link">Logout</a></p>
         {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
     </div>
     <h1>SEO DATA</h1>
     <div class="nav-bar">
