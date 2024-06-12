@@ -10,6 +10,16 @@ $(document).ready(function() {
         ajax: {
             url: "/api/data",
             type: 'GET',
+            data: function(d) {
+                // Custom filtering parameters
+                d.excludeDomains = excludeDomains;
+                d.rdMin = $('#rdMin').val();
+                d.rdMax = $('#rdMax').val();
+                d.drMin = $('#drMin').val();
+                d.drMax = $('#drMax').val();
+                d.trafficMin = $('#trafficMin').val();
+                d.trafficMax = $('#trafficMax').val();
+            },
             dataSrc: function(json) {
                 return json.data;
             }
@@ -98,30 +108,6 @@ $(document).ready(function() {
                 }
             }
         ]
-    });
-
-    // Exclude domains filter
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        var placedLink = data[8].toLowerCase(); // 'Placed On' is assumed to be the 9th column (index 8)
-        return !excludeDomains.some(domain => placedLink.includes(domain));
-    });
-
-    // Custom range filtering functionality for numeric inputs
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        var rdMin = parseFloat($('#rdMin').val()) || -Infinity;
-        var rdMax = parseFloat($('#rdMax').val()) || Infinity;
-        var drMin = parseFloat($('#drMin').val()) || -Infinity;
-        var drMax = parseFloat($('#drMax').val()) || Infinity;
-        var trafficMin = parseFloat($('#trafficMin').val()) || -Infinity;
-        var trafficMax = parseFloat($('#trafficMax').val()) || Infinity;
-
-        var rd = parseFloat(data[5]) || 0; // Assuming RD is the 6th column (index 5)
-        var dr = parseFloat(data[6]) || 0; // Assuming DR is the 7th column (index 6)
-        var traffic = parseFloat(data[7]) || 0; // Assuming Traffic is the 8th column (index 7)
-
-        return (rd >= rdMin && rd <= rdMax) &&
-               (dr >= drMin && dr <= drMax) &&
-               (traffic >= trafficMin && traffic <= trafficMax);
     });
 
     // Handle domain exclusion form submission
