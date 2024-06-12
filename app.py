@@ -44,8 +44,6 @@ def login():
         if username == correct_username and password == correct_password:
             user = User(id=1)
             login_user(user)
-            print("Session:", dict(session))
-            print("Is Authenticated:", current_user.is_authenticated)
             return redirect(url_for('seo_data'))
         else:
             flash('Invalid credentials. Please try again.', 'error')
@@ -66,19 +64,14 @@ def allowed_file(filename):
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload_files():
-    print("Method type:", request.method)  # Debug print
     if request.method == 'POST':
-        print("Files in request:", request.files)  # Debug print
         file = request.files.get('file')
         if not file:
             flash('No file part')
-            print("No file uploaded")  # Debug print
             return redirect(request.url)
-        print("File received:", file.filename)  # Debug print
 
         if not allowed_file(file.filename):
             flash('Invalid file format')
-            print("Invalid file format")  # Debug print
             return redirect(request.url)
 
         try:
@@ -87,10 +80,8 @@ def upload_files():
             # Store data in the database
             store_data(df)
             flash('File successfully uploaded and data stored.')
-            print("File processed and data stored")  # Debug print
         except Exception as e:
             flash('Error processing file: ' + str(e))
-            print("Error processing file:", str(e))  # Debug print
             return redirect(request.url)
 
         return redirect(url_for('upload_files'))  # Redirect after POST to prevent resubmission
@@ -103,6 +94,7 @@ def get_db():
         g.db.row_factory = sqlite3.Row
     return g.db
 
+@app.teardown_appcontext
 def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
@@ -151,33 +143,54 @@ def store_data(dataframe):
 def seo_data():
     return render_template('seo_data.html', active_tab='seo_data')
 
+
+
 @app.route('/api/data')
 @login_required
 def get_data():
-    # Connect to your SQLite database
-    conn = sqlite3.connect('data.db')
-    conn.row_factory = sqlite3.Row  # Enable column access by name
+    draw = request.args.get('draw')
+    start = int(request.args.get('start', 0))
+    length = int(request.args.get('length', 10))
+    search_value = request.args.get('search[value]', '')
+    order_column_index = request.args.get('order[0][column]', 0)
+    order_direction = request.args.get('order[0][dir]', 'asc')
+    order_column = ['uploaddate', 'clienturl', 'rootdomain', 'anchor', 'niche', 'rd', 'dr', 'traffic', 'placedlink', 'placedon'][int(order_column_index)]
+
+    conn = get_db()
     cursor = conn.cursor()
 
-    # SQL query that excludes rows with 'placedon' in the blacklist
-    query = '''
-    SELECT clienturl, rootdomain, anchor, niche, rd, dr, traffic, placedlink, placedon, uploaddate
-    FROM uploads
-    WHERE placedon NOT IN (SELECT domain FROM blacklist_domains)
-    '''
-    cursor.execute(query)
-    rows = cursor.fetchall()
+    # Total records count
+    cursor.execute('SELECT COUNT(*) FROM uploads')
+    records_total = cursor.fetchone()[0]
 
-    # Convert rows to a list of dicts, which is JSON-serializable
-    data = [
-        {"uploaddate": row["uploaddate"], "clienturl": row["clienturl"], "rootdomain": row["rootdomain"], 
-         "anchor": row["anchor"], "niche": row["niche"], "rd": row["rd"], "dr": row["dr"], 
-         "traffic": row["traffic"], "placedlink": row["placedlink"], "placedon": row["placedon"]}
-        for row in rows
-    ]
+    # Filtering logic
+    query = 'SELECT * FROM uploads WHERE placedon NOT IN (SELECT domain FROM blacklist_domains)'
+    params = []
+    if search_value:
+        query += ' AND (clienturl LIKE ? OR rootdomain LIKE ? OR anchor LIKE ? OR niche LIKE ? OR placedlink LIKE ? OR placedon LIKE ?)'
+        search_value_wildcard = f'%{search_value}%'
+        params.extend([search_value_wildcard] * 6)
 
-    conn.close()
-    return jsonify(data)
+    # Total filtered records count
+    cursor.execute(f'SELECT COUNT(*) FROM ({query})', params)
+    records_filtered = cursor.fetchone()[0]
+
+    # Fetch the data with ordering and pagination
+    query += f' ORDER BY {order_column} {order_direction} LIMIT ? OFFSET ?'
+    params.extend([length, start])
+    cursor.execute(query, params)
+    data = cursor.fetchall()
+
+    result = [dict(row) for row in data]
+
+    response = {
+        'draw': draw,
+        'recordsTotal': records_total,
+        'recordsFiltered': records_filtered,
+        'data': result
+    }
+
+    return jsonify(response)
 
 
 

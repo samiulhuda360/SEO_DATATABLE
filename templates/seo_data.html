@@ -1,15 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <div class="content-wrapper">
-    <div class="left-content">
-        <!-- Other content can go here if needed -->
-    </div>
+    <div class="left-content"></div>
     <div class="right-content">
         <form id="domainExclusionMaterialForm">
             <label for="domainFilter">Enter Domains to Exclude (one per line):</label>
-            <textarea id="domainFilter" name="domainFilter" placeholder="e.g.example.com" rows="5" style="width: 100%;"></textarea>
+            <textarea id="domainFilter" name="domainFilter" placeholder="e.g. example.com" rows="5" style="width: 100%;"></textarea>
             <button type="submit" class="exclude-button">Exclude Domains</button>
             <button type="button" id="copyButton">Copy</button>
             <button type="button" id="pasteButton">Paste</button>
@@ -17,14 +14,12 @@
             <span id="statusMessage" style="margin-left: 10px;"></span>
         </form>
     </div>
-    
 </div>
-
 <div id="table-container">
     <table id="seoDataTable" class="display" style="width:100%">
         <thead>
-            <tr> <!-- Column titles -->
-                <th style="width:60px;">Date</th> <!-- New column for upload date -->
+            <tr>
+                <th style="width:60px;">Date</th>
                 <th>Client URL</th>
                 <th style="max-width:80px;">Root Domain</th>
                 <th style="max-width:80px;">Anchor</th>
@@ -35,8 +30,8 @@
                 <th>Placed Link</th>
                 <th>Placed On</th>
             </tr>
-            <tr> <!-- Search filters -->
-                <th></th> <!-- New search filter for upload date -->
+            <tr>
+                <th></th>
                 <th><input type="text" placeholder="Search Client URL" /></th>
                 <th><input type="text" placeholder="Search Root Domain" /></th>
                 <th><input type="text" placeholder="Search Anchor" /></th>
@@ -62,11 +57,9 @@
                 <th><input type="text" placeholder="Search Placed Link" /></th>
                 <th><input type="text" placeholder="Search Placed On" /></th>
             </tr>
-        </thead>             
+        </thead>
         <tbody>
-            <!-- Data rows will be inserted here by DataTables -->
         </tbody>
     </table>
-   
 </div>
 {% endblock %}
