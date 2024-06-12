@@ -204,11 +204,18 @@ $('#pasteButton').on('click', function() {
             });
         });
     } else {
-        console.error("Clipboard API not supported in this browser."); // Debugging line for unsupported Clipboard API
-        $('#statusMessage').text('Clipboard API not supported in this browser.').fadeOut(3000, function() {
-            $(this).text('');
-            $(this).show();
-        });
+        // Fallback for browsers that do not support the Clipboard API
+        let clipText = prompt("Clipboard API is not supported in your browser. Please paste the data here manually:");
+        if (clipText !== null) {
+            let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+            let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+            let combinedData = new Set([...existingData, ...newData]);
+            $('#domainFilter').val(Array.from(combinedData).join('\n'));
+            $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+                $(this).text('');
+                $(this).show();
+            });
+        }
     }
 });
 
