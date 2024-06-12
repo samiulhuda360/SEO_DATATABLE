@@ -100,13 +100,11 @@ $(document).ready(function() {
         ]
     });
 
-    // Custom search function for domain exclusion
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         var placedLink = data[8].toLowerCase(); 
         return !excludeDomains.some(domain => placedLink.includes(domain));
     });
 
-    // Custom search function for numeric range filtering
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         var rdMin = parseFloat($('#rdMin').val()) || -Infinity;
         var rdMax = parseFloat($('#rdMax').val()) || Infinity;
@@ -124,47 +122,41 @@ $(document).ready(function() {
                (traffic >= trafficMin && traffic <= trafficMax);
     });
 
-    // Domain exclusion form submission
     $('#domainExclusionMaterialForm').on('submit', function(e) {
         e.preventDefault();
         excludeDomains = $('#domainFilter').val().toLowerCase().split('\n').map(domain => domain.trim());
         table.draw();
     });
 
-    // Reset button functionality
     $('#resetButton').click(function() {
-        $('#domainFilter').val('');  
-        excludeDomains = [];  
-        table.search('');           
-        table.columns().search(''); 
-        table.draw();               
+        $('#domainFilter').val('');
+        excludeDomains = [];
+        table.search('');
+        table.columns().search('');
+        table.draw();
     });
 
-    // Prevent sorting when interacting with inputs in DataTables header
     $('input', table.table().header()).on('click keyup', function(event) {
         event.stopPropagation();
     });
 
-    // Event handler for text search inputs
     $('#seoDataTable thead tr:eq(1) th input[type="text"]').on('keyup change', function() {
         let columnIndex = $(this).closest('th').index();
         table.column(columnIndex).search(this.value).draw();
     });
 
-    // Event handler for numeric range inputs
     $('#seoDataTable thead tr:eq(1) th input[type="number"]').on('keyup change', function() {
         table.draw();
     });
 
-    // Copy visible data from 'Placed On' column to clipboard
     $('#copyButton').on('click', function() {
-        let data = new Set(); 
+        let data = new Set();
         table.column(9, { search: 'applied' }).data().each(function(value, index) {
             if (value) {
-                data.add(value); 
+                data.add(value);
             }
         });
-        let dataString = Array.from(data).join("\n");  
+        let dataString = Array.from(data).join("\n");
         navigator.clipboard.writeText(dataString).then(function() {
             $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
                 $(this).text('');
@@ -178,12 +170,11 @@ $(document).ready(function() {
         });
     });
 
-    // Paste data from clipboard to 'domainFilter'
     $('#pasteButton').on('click', function() {
         navigator.clipboard.readText().then(function(clipText) {
             let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
             let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-            let combinedData = new Set([...existingData, ...newData]); 
+            let combinedData = new Set([...existingData, ...newData]);
             $('#domainFilter').val(Array.from(combinedData).join('\n'));
             $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
                 $(this).text('');
