@@ -10,6 +10,22 @@ $(document).ready(function() {
         ajax: {
             url: "/api/data",
             type: 'GET',
+            data: function(d) {
+                // Custom filtering parameters
+                d.excludeDomains = excludeDomains;
+                d.rdMin = $('#rdMin').val();
+                d.rdMax = $('#rdMax').val();
+                d.drMin = $('#drMin').val();
+                d.drMax = $('#drMax').val();
+                d.trafficMin = $('#trafficMin').val();
+                d.trafficMax = $('#trafficMax').val();
+                d.clientUrl = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(0).val();
+                d.rootDomain = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(1).val();
+                d.anchor = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(2).val();
+                d.niche = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(3).val();
+                d.placedLink = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(4).val();
+                d.placedOn = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(5).val();
+            },
             dataSrc: function(json) {
                 return json.data;
             }
@@ -100,53 +116,35 @@ $(document).ready(function() {
         ]
     });
 
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        var placedLink = data[8].toLowerCase(); 
-        return !excludeDomains.some(domain => placedLink.includes(domain));
-    });
-
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        var rdMin = parseFloat($('#rdMin').val()) || -Infinity;
-        var rdMax = parseFloat($('#rdMax').val()) || Infinity;
-        var drMin = parseFloat($('#drMin').val()) || -Infinity;
-        var drMax = parseFloat($('#drMax').val()) || Infinity;
-        var trafficMin = parseFloat($('#trafficMin').val()) || -Infinity;
-        var trafficMax = parseFloat($('#trafficMax').val()) || Infinity;
-
-        var rd = parseFloat(data[5]) || 0; 
-        var dr = parseFloat(data[6]) || 0; 
-        var traffic = parseFloat(data[7]) || 0; 
-
-        return (rd >= rdMin && rd <= rdMax) &&
-               (dr >= drMin && dr <= drMax) &&
-               (traffic >= trafficMin && traffic <= trafficMax);
-    });
-
+    // Handle domain exclusion form submission
     $('#domainExclusionMaterialForm').on('submit', function(e) {
         e.preventDefault();
         excludeDomains = $('#domainFilter').val().toLowerCase().split('\n').map(domain => domain.trim());
-        table.draw();
+        table.draw(); // Trigger a redraw to apply the new exclusion filter
     });
 
+    // Reset button functionality
     $('#resetButton').click(function() {
-        $('#domainFilter').val('');
-        excludeDomains = [];
-        table.search('');
-        table.columns().search('');
-        table.draw();
+        $('#domainFilter').val('');  // Clear the textarea
+        excludeDomains = [];  // Clear the exclude domains array
+        table.search('');           // Clear any searches/filters on the DataTable
+        table.columns().search(''); // Clear column specific searches if any
+        table.draw();               // Redraw the table to its initial state
     });
 
+    // Prevent sorting when interacting with inputs in DataTables header
     $('input', table.table().header()).on('click keyup', function(event) {
         event.stopPropagation();
     });
 
+    // Event handler for text search inputs
     $('#seoDataTable thead tr:eq(1) th input[type="text"]').on('keyup change', function() {
-        let columnIndex = $(this).closest('th').index();
-        table.column(columnIndex).search(this.value).draw();
+        table.draw();
     });
 
+    // Event handler for numeric range inputs
     $('#seoDataTable thead tr:eq(1) th input[type="number"]').on('keyup change', function() {
-        table.draw();
+        table.draw(); // Redraw table to apply the custom search
     });
 
     // Copy visible data from 'Placed On' column to clipboard
