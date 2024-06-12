@@ -15,7 +15,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_SECURE'] = True
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 
 # Initialize CORS
