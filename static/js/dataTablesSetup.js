@@ -1,6 +1,5 @@
-$(document).ready(function() {
-    var excludeDomains = [];
 
+$(document).ready(function() {
     var table = $('#seoDataTable').DataTable({
         processing: true,
         serverSide: true,
@@ -12,7 +11,6 @@ $(document).ready(function() {
             type: 'GET',
             data: function(d) {
                 // Add custom parameters here
-                d.excludeDomains = excludeDomains.join(',');
             },
             dataSrc: function(json) {
                 return json.data;
