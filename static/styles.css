@@ -107,8 +107,6 @@ button  {
     text-decoration: underline;
 }
 
-
-
 /* Login Form */
 
 .login-container {
@@ -223,8 +221,8 @@ button  {
 }
 
 .exclude-button, #copyButton, #pasteButton, #resetButton {
-    font-size: 18px;
-    padding: 5px 10px;
+    font-size: 17px;
+    padding: 4px 8px;
     margin: 5px;
     background-color: #f4f4f4;
     border: 1px solid #ccc;

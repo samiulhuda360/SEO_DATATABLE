@@ -28,7 +28,7 @@
                 <th>Client URL</th>
                 <th style="max-width:80px;">Root Domain</th>
                 <th style="max-width:80px;">Anchor</th>
-                <th style="max-width:80px;"> Niche</th>
+                <th style="max-width:80px;">Niche</th>
                 <th>RD</th>
                 <th>DR</th>
                 <th>Traffic</th>
@@ -43,20 +43,20 @@
                 <th><input type="text" placeholder="Search Niche" /></th>
                 <th>
                     <div style="display: flex; justify-content: space-between;">
-                        <input type="number" placeholder="Min RD" class="min-search" style="width: 49%;" />
-                        <input type="number" placeholder="Max RD" class="max-search" style="width: 49%;" />
+                        <input type="number" id="rdMin" placeholder="Min RD" class="min-search" style="width: 49%;" />
+                        <input type="number" id="rdMax" placeholder="Max RD" class="max-search" style="width: 49%;" />
                     </div>
                 </th>
                 <th>
                     <div style="display: flex; justify-content: space-between;">
-                        <input type="number" placeholder="Min DR" class="min-search" style="width: 49%;" />
-                        <input type="number" placeholder="Max DR" class="max-search" style="width: 49%;" />
+                        <input type="number" id="drMin" placeholder="Min DR" class="min-search" style="width: 49%;" />
+                        <input type="number" id="drMax" placeholder="Max DR" class="max-search" style="width: 49%;" />
                     </div>
                 </th>
                 <th>
                     <div style="display: flex; justify-content: space-between;">
-                        <input type="number" placeholder="Min Traffic" class="min-search" style="width: 49%;" />
-                        <input type="number" placeholder="Max Traffic" class="max-search" style="width: 49%;" />
+                        <input type="number" id="trafficMin" placeholder="Min Traffic" class="min-search" style="width: 49%;" />
+                        <input type="number" id="trafficMax" placeholder="Max Traffic" class="max-search" style="width: 49%;" />
                     </div>
                 </th>
                 <th><input type="text" placeholder="Search Placed Link" /></th>
@@ -67,5 +67,6 @@
             <!-- Data rows will be inserted here by DataTables -->
         </tbody>
     </table>
+   
 </div>
 {% endblock %}

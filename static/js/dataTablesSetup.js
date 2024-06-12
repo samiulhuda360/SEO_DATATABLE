@@ -10,7 +10,8 @@ $(document).ready(function() {
             dataSrc: ""
         },
         columns: [
-            {data: "uploaddate",
+            {
+                data: "uploaddate",
                 render: function(data, type, row) {
                     if (type === 'display' || type === 'filter') {
                         var date = new Date(data); // Assuming 'data' is the serial date or timestamp
@@ -22,7 +23,8 @@ $(document).ready(function() {
                     return data; // Use raw data for other types like sorting or type detection
                 }
             },
-            {data: "clienturl",
+            {
+                data: "clienturl",
                 render: function(data, type, row) {
                     if (data && (data.startsWith('http://') || data.startsWith('https://'))) {
                         return '<a href="' + data + '" target="_blank">' + data + '</a>';
@@ -94,25 +96,47 @@ $(document).ready(function() {
         ]
     });
 
-     // Reset button functionality
-     $('#resetButton').click(function() {
-        $('#domainFilter').val('');  // Clear the textarea
-        table.search('');           // Clear any searches/filters on the DataTable
-        table.columns().search(''); // Clear column specific searches if any
-        table.draw();               // Redraw the table to its initial state
+    // Add custom search function to DataTables to exclude multiple domains
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        var placedLink = data[8].toLowerCase(); // 'Placed On' is assumed to be the 9th column (index 8)
+        console.log('Placed Link:', placedLink); // Debugging output
+        console.log('Exclude Domains:', excludeDomains); // Debugging output
+        return !excludeDomains.some(domain => placedLink.includes(domain));
+    });
+
+    // Custom range filtering functionality for numeric inputs
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        var rdMin = parseFloat($('#rdMin').val()) || -Infinity;
+        var rdMax = parseFloat($('#rdMax').val()) || Infinity;
+        var drMin = parseFloat($('#drMin').val()) || -Infinity;
+        var drMax = parseFloat($('#drMax').val()) || Infinity;
+        var trafficMin = parseFloat($('#trafficMin').val()) || -Infinity;
+        var trafficMax = parseFloat($('#trafficMax').val()) || Infinity;
+
+        var rd = parseFloat(data[5]) || 0; // Assuming RD is the 6th column (index 5)
+        var dr = parseFloat(data[6]) || 0; // Assuming DR is the 7th column (index 6)
+        var traffic = parseFloat(data[7]) || 0; // Assuming Traffic is the 8th column (index 7)
+
+        return (rd >= rdMin && rd <= rdMax) &&
+               (dr >= drMin && dr <= drMax) &&
+               (traffic >= trafficMin && traffic <= trafficMax);
     });
 
     // Handle domain exclusion form submission
-    $('#domainExclusionForm').on('submit', function(e) {
+    $('#domainExclusionMaterialForm').on('submit', function(e) {
         e.preventDefault();
         excludeDomains = $('#domainFilter').val().toLowerCase().split('\n').map(domain => domain.trim());
+        console.log('Updated Exclude Domains:', excludeDomains); // Debugging output
         table.draw(); // Trigger a redraw to apply the new exclusion filter
     });
 
-    // Add custom search function to DataTables to exclude multiple domains
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        var placedLink = data[7].toLowerCase(); // 'Placed Link' is assumed to be the eighth column
-        return !excludeDomains.some(domain => placedLink.includes(domain));
+    // Reset button functionality
+    $('#resetButton').click(function() {
+        $('#domainFilter').val('');  // Clear the textarea
+        excludeDomains = [];  // Clear the exclude domains array
+        table.search('');           // Clear any searches/filters on the DataTable
+        table.columns().search(''); // Clear column specific searches if any
+        table.draw();               // Redraw the table to its initial state
     });
 
     // Prevent sorting when interacting with inputs in DataTables header
@@ -126,20 +150,20 @@ $(document).ready(function() {
         table.column(columnIndex).search(this.value).draw();
     });
 
-    // Custom range filtering functionality for numeric inputs
+    // Event handler for numeric range inputs
     $('#seoDataTable thead tr:eq(1) th input[type="number"]').on('keyup change', function() {
         table.draw(); // Redraw table to apply the custom search
     });
-    
-     // Copy visible data from 'Placed On' column to clipboard
-     $('#copyButton').on('click', function() {
-        let data = [];
+
+    // Copy visible data from 'Placed On' column to clipboard
+    $('#copyButton').on('click', function() {
+        let data = new Set(); // Use a Set to ensure unique values
         table.column(9, { search: 'applied' }).data().each(function(value, index) {
             if (value) {
-                data.push(value);  // Collect only non-empty values
+                data.add(value); // Add value to Set, which automatically handles duplicates
             }
         });
-        let dataString = data.join("\n");  // Join data with newline character
+        let dataString = Array.from(data).join("\n");  // Convert Set to Array and join with newline character
         navigator.clipboard.writeText(dataString).then(function() {
             $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
                 $(this).text('');
@@ -153,10 +177,14 @@ $(document).ready(function() {
         });
     });
 
+
     // Paste data from clipboard to 'domainFilter'
     $('#pasteButton').on('click', function() {
         navigator.clipboard.readText().then(function(clipText) {
-            $('#domainFilter').val(clipText);
+            let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+            let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+            let combinedData = new Set([...existingData, ...newData]); // Combine and ensure unique values using Set
+            $('#domainFilter').val(Array.from(combinedData).join('\n'));
             $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
                 $(this).text('');
                 $(this).show();
@@ -168,4 +196,5 @@ $(document).ready(function() {
             });
         });
     });
+
 });
