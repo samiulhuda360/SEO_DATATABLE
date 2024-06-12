@@ -147,16 +147,18 @@ $(document).ready(function() {
         table.draw(); // Redraw table to apply the custom search
     });
 
+    
+// Copy visible data from 'Placed On' column to clipboard
+$('#copyButton').on('click', function() {
+    let data = new Set(); // Use a Set to ensure unique values
+    table.column(9, { search: 'applied' }).data().each(function(value, index) {
+        if (value) {
+            data.add(value); // Add value to Set, which automatically handles duplicates
+        }
+    });
+    let dataString = Array.from(data).join("\n");  // Convert Set to Array and join with newline character
 
-    // Copy visible data from 'Placed On' column to clipboard
-    $('#copyButton').on('click', function() {
-        let data = new Set(); // Use a Set to ensure unique values
-        table.column(9, { search: 'applied' }).data().each(function(value, index) {
-            if (value) {
-                data.add(value); // Add value to Set, which automatically handles duplicates
-            }
-        });
-        let dataString = Array.from(data).join("\n");  // Convert Set to Array and join with newline character
+    if (navigator.clipboard) {
         navigator.clipboard.writeText(dataString).then(function() {
             $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
                 $(this).text('');
@@ -168,10 +170,21 @@ $(document).ready(function() {
                 $(this).show();
             });
         });
-    });
+    } else {
+        // Fallback for browsers that do not support the Clipboard API
+        let textarea = $('<textarea>').val(dataString).appendTo('body').select();
+        document.execCommand('copy');
+        textarea.remove();
+        $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
+            $(this).text('');
+            $(this).show();
+        });
+    }
+});
 
-    // Paste data from clipboard to 'domainFilter'
-    $('#pasteButton').on('click', function() {
+// Paste data from clipboard to 'domainFilter'
+$('#pasteButton').on('click', function() {
+    if (navigator.clipboard) {
         navigator.clipboard.readText().then(function(clipText) {
             let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
             let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
@@ -187,7 +200,23 @@ $(document).ready(function() {
                 $(this).show();
             });
         });
-    });
+    } else {
+        // Fallback for browsers that do not support the Clipboard API
+        let textarea = $('<textarea>').appendTo('body').focus();
+        document.execCommand('paste');
+        let clipText = textarea.val();
+        textarea.remove();
+
+        let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+        let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+        let combinedData = new Set([...existingData, ...newData]);
+        $('#domainFilter').val(Array.from(combinedData).join('\n'));
+        $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+            $(this).text('');
+            $(this).show();
+        });
+    }
+});
 
 
 });
