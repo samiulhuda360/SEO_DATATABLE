@@ -9,9 +9,6 @@
                 ajax: {
                     url: "/api/data",
                     type: 'GET',
-                    data: function(d) {
-                        // Add custom parameters here
-                    },
                     dataSrc: function(json) {
                         return json.data;
                     }
