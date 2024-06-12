@@ -147,47 +147,45 @@ $(document).ready(function() {
         table.draw(); // Redraw table to apply the custom search
     });
 
-    
-// Initialize Clipboard.js for copy button
-new ClipboardJS('#copyButton', {
-    text: function() {
-        let data = new Set();
-        table.column(9, { search: 'applied' }).data().each(function(value) {
-            if (value) {
-                data.add(value);
-            }
-        });
-        return Array.from(data).join("\n");
-    }
-}).on('success', function() {
-    $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
-        $(this).text('');
-        $(this).show();
-    });
-}).on('error', function() {
-    $('#statusMessage').text('Failed to copy data!').fadeOut(3000, function() {
-        $(this).text('');
-        $(this).show();
-    });
-});
-
-// Manual paste functionality
-$('#pasteButton').on('click', function() {
-    navigator.clipboard.readText().then(function(clipText) {
-        let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-        let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-        let combinedData = new Set([...existingData, ...newData]); // Combine and ensure unique values using Set
-        $('#domainFilter').val(Array.from(combinedData).join('\n'));
-        $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+    // Initialize Clipboard.js for copy button
+    new ClipboardJS('#copyButton', {
+        text: function() {
+            let data = new Set();
+            table.column(9, { search: 'applied' }).data().each(function(value) {
+                if (value) {
+                    data.add(value);
+                }
+            });
+            return Array.from(data).join("\n");
+        }
+    }).on('success', function() {
+        $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
             $(this).text('');
             $(this).show();
         });
-    }).catch(function(err) {
-        $('#statusMessage').text('Failed to paste data!').fadeOut(3000, function() {
+    }).on('error', function() {
+        $('#statusMessage').text('Failed to copy data!').fadeOut(3000, function() {
             $(this).text('');
             $(this).show();
         });
     });
-});
 
+    // Manual paste functionality
+    $('#pasteButton').on('click', function() {
+        navigator.clipboard.readText().then(function(clipText) {
+            let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+            let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+            let combinedData = new Set([...existingData, ...newData]); // Combine and ensure unique values using Set
+            $('#domainFilter').val(Array.from(combinedData).join('\n'));
+            $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+                $(this).text('');
+                $(this).show();
+            });
+        }).catch(function(err) {
+            $('#statusMessage').text('Failed to paste data!').fadeOut(3000, function() {
+                $(this).text('');
+                $(this).show();
+            });
+        });
+    });
 });
