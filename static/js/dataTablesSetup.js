@@ -204,25 +204,14 @@ $('#pasteButton').on('click', function() {
             });
         });
     } else {
-        console.log("Fallback for unsupported Clipboard API"); // Debugging line for fallback check
-        // Fallback for browsers that do not support the Clipboard API
-        let textarea = $('<textarea>').appendTo('body').focus();
-        document.execCommand('paste');
-        let clipText = textarea.val();
-        textarea.remove();
-
-        console.log("Clipboard text (fallback):", clipText); // Debugging line to check clipboard text in fallback
-        let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-        let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-        let combinedData = new Set([...existingData, ...newData]);
-        $('#domainFilter').val(Array.from(combinedData).join('\n'));
-        console.log("New value in textarea (fallback):", $('#domainFilter').val()); // Debugging line to check the new value
-        $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+        console.error("Clipboard API not supported in this browser."); // Debugging line for unsupported Clipboard API
+        $('#statusMessage').text('Clipboard API not supported in this browser.').fadeOut(3000, function() {
             $(this).text('');
             $(this).show();
         });
     }
 });
+
 
 
 function pasteDataToTextarea(clipText) {
