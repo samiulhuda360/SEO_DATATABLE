@@ -147,6 +147,7 @@ $(document).ready(function() {
         table.draw(); // Redraw table to apply the custom search
     });
 
+    
     // Copy visible data from 'Placed On' column to clipboard
     $('#copyButton').on('click', function() {
         let data = new Set(); // Use a Set to ensure unique values
