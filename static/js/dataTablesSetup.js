@@ -10,22 +10,6 @@ $(document).ready(function() {
         ajax: {
             url: "/api/data",
             type: 'GET',
-            data: function(d) {
-                // Custom filtering parameters
-                d.excludeDomains = excludeDomains;
-                d.rdMin = $('#rdMin').val();
-                d.rdMax = $('#rdMax').val();
-                d.drMin = $('#drMin').val();
-                d.drMax = $('#drMax').val();
-                d.trafficMin = $('#trafficMin').val();
-                d.trafficMax = $('#trafficMax').val();
-                d.clientUrl = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(0).val();
-                d.rootDomain = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(1).val();
-                d.anchor = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(2).val();
-                d.niche = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(3).val();
-                d.placedLink = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(4).val();
-                d.placedOn = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(5).val();
-            },
             dataSrc: function(json) {
                 return json.data;
             }
@@ -116,75 +100,107 @@ $(document).ready(function() {
         ]
     });
 
-    // Handle domain exclusion form submission
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        var placedLink = data[8].toLowerCase(); 
+        return !excludeDomains.some(domain => placedLink.includes(domain));
+    });
+
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        var rdMin = parseFloat($('#rdMin').val()) || -Infinity;
+        var rdMax = parseFloat($('#rdMax').val()) || Infinity;
+        var drMin = parseFloat($('#drMin').val()) || -Infinity;
+        var drMax = parseFloat($('#drMax').val()) || Infinity;
+        var trafficMin = parseFloat($('#trafficMin').val()) || -Infinity;
+        var trafficMax = parseFloat($('#trafficMax').val()) || Infinity;
+
+        var rd = parseFloat(data[5]) || 0; 
+        var dr = parseFloat(data[6]) || 0; 
+        var traffic = parseFloat(data[7]) || 0; 
+
+        return (rd >= rdMin && rd <= rdMax) &&
+               (dr >= drMin && dr <= drMax) &&
+               (traffic >= trafficMin && traffic <= trafficMax);
+    });
+
     $('#domainExclusionMaterialForm').on('submit', function(e) {
         e.preventDefault();
         excludeDomains = $('#domainFilter').val().toLowerCase().split('\n').map(domain => domain.trim());
-        table.draw(); // Trigger a redraw to apply the new exclusion filter
+        table.draw();
     });
 
-    // Reset button functionality
     $('#resetButton').click(function() {
-        $('#domainFilter').val('');  // Clear the textarea
-        excludeDomains = [];  // Clear the exclude domains array
-        table.search('');           // Clear any searches/filters on the DataTable
-        table.columns().search(''); // Clear column specific searches if any
-        table.draw();               // Redraw the table to its initial state
+        $('#domainFilter').val('');
+        excludeDomains = [];
+        table.search('');
+        table.columns().search('');
+        table.draw();
     });
 
-    // Prevent sorting when interacting with inputs in DataTables header
     $('input', table.table().header()).on('click keyup', function(event) {
         event.stopPropagation();
     });
 
-    // Event handler for text search inputs
     $('#seoDataTable thead tr:eq(1) th input[type="text"]').on('keyup change', function() {
-        table.draw();
+        let columnIndex = $(this).closest('th').index();
+        table.column(columnIndex).search(this.value).draw();
     });
 
-    // Event handler for numeric range inputs
     $('#seoDataTable thead tr:eq(1) th input[type="number"]').on('keyup change', function() {
-        table.draw(); // Redraw table to apply the custom search
+        table.draw();
     });
 
     // Copy visible data from 'Placed On' column to clipboard
     $('#copyButton').on('click', function() {
-        let data = new Set(); // Use a Set to ensure unique values
-        table.column(9, { search: 'applied' }).data().each(function(value, index) {
-            if (value) {
-                data.add(value); // Add value to Set, which automatically handles duplicates
-            }
-        });
-        let dataString = Array.from(data).join("\n");  // Convert Set to Array and join with newline character
-        navigator.clipboard.writeText(dataString).then(function() {
-            $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            let data = new Set(); // Use a Set to ensure unique values
+            table.column(9, { search: 'applied' }).data().each(function(value, index) {
+                if (value) {
+                    data.add(value); // Add value to Set, which automatically handles duplicates
+                }
+            });
+            let dataString = Array.from(data).join("\n");  // Convert Set to Array and join with newline character
+            navigator.clipboard.writeText(dataString).then(function() {
+                $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
+                    $(this).text('');
+                    $(this).show();
+                });
+            }, function(err) {
+                $('#statusMessage').text('Failed to copy data!').fadeOut(3000, function() {
+                    $(this).text('');
+                    $(this).show();
+                });
+            });
+        } else {
+            $('#statusMessage').text('Clipboard API not supported in your browser').fadeOut(3000, function() {
                 $(this).text('');
                 $(this).show();
             });
-        }, function(err) {
-            $('#statusMessage').text('Failed to copy data!').fadeOut(3000, function() {
-                $(this).text('');
-                $(this).show();
-            });
-        });
+        }
     });
 
     // Paste data from clipboard to 'domainFilter'
     $('#pasteButton').on('click', function() {
-        navigator.clipboard.readText().then(function(clipText) {
-            let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-            let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-            let combinedData = new Set([...existingData, ...newData]); // Combine and ensure unique values using Set
-            $('#domainFilter').val(Array.from(combinedData).join('\n'));
-            $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+            navigator.clipboard.readText().then(function(clipText) {
+                let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+                let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+                let combinedData = new Set([...existingData, ...newData]); // Combine and ensure unique values using Set
+                $('#domainFilter').val(Array.from(combinedData).join('\n'));
+                $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+                    $(this).text('');
+                    $(this).show();
+                });
+            }).catch(function(err) {
+                $('#statusMessage').text('Failed to paste data!').fadeOut(3000, function() {
+                    $(this).text('');
+                    $(this).show();
+                });
+            });
+        } else {
+            $('#statusMessage').text('Clipboard API not supported in your browser').fadeOut(3000, function() {
                 $(this).text('');
                 $(this).show();
             });
-        }).catch(function(err) {
-            $('#statusMessage').text('Failed to paste data!').fadeOut(3000, function() {
-                $(this).text('');
-                $(this).show();
-            });
-        });
+        }
     });
 });
