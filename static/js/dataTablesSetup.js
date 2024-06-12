@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    var excludeDomains = [];
+    var excludeDomains = []; // Array to hold the domains to exclude
 
     var table = $('#seoDataTable').DataTable({
         processing: true,
@@ -15,36 +15,45 @@ $(document).ready(function() {
             }
         },
         columns: [
-            { data: "uploaddate", render: function(data, type, row) {
-                if (type === 'display' || type === 'filter') {
-                    var date = new Date(data);
-                    var day = String(date.getDate()).padStart(2, '0');
-                    var month = String(date.getMonth() + 1).padStart(2, '0');
-                    var year = date.getFullYear();
-                    return day + '/' + month + '/' + year;
+            {
+                data: "uploaddate",
+                render: function(data, type, row) {
+                    if (type === 'display' || type === 'filter') {
+                        var date = new Date(data); 
+                        var day = String(date.getDate()).padStart(2, '0');
+                        var month = String(date.getMonth() + 1).padStart(2, '0'); 
+                        var year = date.getFullYear();
+                        return day + '/' + month + '/' + year;
+                    }
+                    return data; 
                 }
-                return data;
-            }},
-            { data: "clienturl", render: function(data, type, row) {
-                if (data && (data.startsWith('http://') || data.startsWith('https://'))) {
-                    return '<a href="' + data + '" target="_blank">' + data + '</a>';
-                } else {
-                    return data;
+            },
+            {
+                data: "clienturl",
+                render: function(data, type, row) {
+                    if (data && (data.startsWith('http://') || data.startsWith('https://'))) {
+                        return '<a href="' + data + '" target="_blank">' + data + '</a>';
+                    } else {
+                        return data;
+                    }
                 }
-            }},
+            },
             { data: "rootdomain" },
             { data: "anchor" },
             { data: "niche" },
             { data: "rd" },
             { data: "dr" },
             { data: "traffic" },
-            { data: "placedlink", render: function(data, type, row) {
-                if (data && (data.startsWith('http://') || data.startsWith('https://'))) {
-                    return '<a href="' + data + '" target="_blank">' + data + '</a>';
-                } else {
-                    return data;
+            {
+                data: "placedlink",
+                render: function(data, type, row) {
+                    if (data && (data.startsWith('http://') || data.startsWith('https://'))) {
+                        return '<a href="' + data + '" target="_blank">' + data + '</a>';
+                    } else {
+                        return data;
+                    }
                 }
-            }},
+            },
             { data: "placedon" }
         ],
         dom: 'Bfrtip',
@@ -91,13 +100,13 @@ $(document).ready(function() {
         ]
     });
 
-    // Filter by excluded domains
+    // Custom search function for domain exclusion
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        var placedLink = data[8].toLowerCase();
+        var placedLink = data[8].toLowerCase(); 
         return !excludeDomains.some(domain => placedLink.includes(domain));
     });
 
-    // Custom range filtering functionality
+    // Custom search function for numeric range filtering
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         var rdMin = parseFloat($('#rdMin').val()) || -Infinity;
         var rdMax = parseFloat($('#rdMax').val()) || Infinity;
@@ -106,16 +115,16 @@ $(document).ready(function() {
         var trafficMin = parseFloat($('#trafficMin').val()) || -Infinity;
         var trafficMax = parseFloat($('#trafficMax').val()) || Infinity;
 
-        var rd = parseFloat(data[5]) || 0;
-        var dr = parseFloat(data[6]) || 0;
-        var traffic = parseFloat(data[7]) || 0;
+        var rd = parseFloat(data[5]) || 0; 
+        var dr = parseFloat(data[6]) || 0; 
+        var traffic = parseFloat(data[7]) || 0; 
 
         return (rd >= rdMin && rd <= rdMax) &&
                (dr >= drMin && dr <= drMax) &&
                (traffic >= trafficMin && traffic <= trafficMax);
     });
 
-    // Handle domain exclusion form submission
+    // Domain exclusion form submission
     $('#domainExclusionMaterialForm').on('submit', function(e) {
         e.preventDefault();
         excludeDomains = $('#domainFilter').val().toLowerCase().split('\n').map(domain => domain.trim());
@@ -124,11 +133,11 @@ $(document).ready(function() {
 
     // Reset button functionality
     $('#resetButton').click(function() {
-        $('#domainFilter').val('');
-        excludeDomains = [];
-        table.search('');
-        table.columns().search('');
-        table.draw();
+        $('#domainFilter').val('');  
+        excludeDomains = [];  
+        table.search('');           
+        table.columns().search(''); 
+        table.draw();               
     });
 
     // Prevent sorting when interacting with inputs in DataTables header
@@ -149,13 +158,13 @@ $(document).ready(function() {
 
     // Copy visible data from 'Placed On' column to clipboard
     $('#copyButton').on('click', function() {
-        let data = new Set();
+        let data = new Set(); 
         table.column(9, { search: 'applied' }).data().each(function(value, index) {
             if (value) {
-                data.add(value);
+                data.add(value); 
             }
         });
-        let dataString = Array.from(data).join("\n");
+        let dataString = Array.from(data).join("\n");  
         navigator.clipboard.writeText(dataString).then(function() {
             $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
                 $(this).text('');
@@ -174,7 +183,7 @@ $(document).ready(function() {
         navigator.clipboard.readText().then(function(clipText) {
             let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
             let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-            let combinedData = new Set([...existingData, ...newData]);
+            let combinedData = new Set([...existingData, ...newData]); 
             $('#domainFilter').val(Array.from(combinedData).join('\n'));
             $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
                 $(this).text('');
