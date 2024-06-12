@@ -12,7 +12,7 @@
 
     <h2>Upload Blacklist Data</h2>
     <p>Upload your Excel files containing blacklist domains here. The file should contain one column with the header "BlackList Domain".</p>
-    <form action="{{ url_for('upload_blacklist') }}" method="post" enctype="multipart/form-data">
+    <form action="{{ url_for('upload_blacklist') }}" method="post" enctype="multipart/form_data">
         <input type="file" name="blacklist_file" accept=".xlsx, .xls">
         <button type="submit">Upload Blacklist</button>
     </form>
@@ -26,5 +26,16 @@
         <button type="submit">Flush Database</button>
     </form>
 
+
     <div class="form-separator"></div> <!-- Another separator -->
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <h3>{{ message }}</h3>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 {% endblock %}

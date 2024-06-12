@@ -46,13 +46,11 @@ def login():
             flash('Login successful!', 'success')
             print("Session:", dict(session))
             print("Is Authenticated:", current_user.is_authenticated)
-            next_page = request.args.get('next')
-            return redirect(next_page or url_for('seo_data'))
+            return redirect(url_for('seo_data'))
         else:
             flash('Invalid credentials. Please try again.', 'error')
+            
     return render_template('login.html')
-
-
 
 
 @app.route('/logout')
