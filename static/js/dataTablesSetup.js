@@ -186,14 +186,7 @@ $('#copyButton').on('click', function() {
 $('#pasteButton').on('click', function() {
     if (navigator.clipboard) {
         navigator.clipboard.readText().then(function(clipText) {
-            let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-            let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-            let combinedData = new Set([...existingData, ...newData]); // Combine and ensure unique values using Set
-            $('#domainFilter').val(Array.from(combinedData).join('\n'));
-            $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
-                $(this).text('');
-                $(this).show();
-            });
+            pasteDataToTextarea(clipText);
         }).catch(function(err) {
             $('#statusMessage').text('Failed to paste data!').fadeOut(3000, function() {
                 $(this).text('');
@@ -206,17 +199,21 @@ $('#pasteButton').on('click', function() {
         document.execCommand('paste');
         let clipText = textarea.val();
         textarea.remove();
-
-        let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-        let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-        let combinedData = new Set([...existingData, ...newData]);
-        $('#domainFilter').val(Array.from(combinedData).join('\n'));
-        $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
-            $(this).text('');
-            $(this).show();
-        });
+        pasteDataToTextarea(clipText);
     }
 });
+
+function pasteDataToTextarea(clipText) {
+    let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+    let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+    let combinedData = new Set([...existingData, ...newData]);
+    $('#domainFilter').val(Array.from(combinedData).join('\n'));
+    $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+        $(this).text('');
+        $(this).show();
+    });
+}
+
 
 
 });
