@@ -120,7 +120,10 @@ def store_data(dataframe):
             placedon TEXT,
             uploaddate DATE
         )''')
-    
+
+    # Drop rows where all columns are NaN
+    dataframe = dataframe.dropna(how='all')
+
     # Get all blacklisted domains
     cursor.execute('SELECT domain FROM blacklist_domains')
     blacklisted_domains = {row['domain'] for row in cursor.fetchall()}
@@ -137,6 +140,7 @@ def store_data(dataframe):
         dataframe.to_sql('uploads', db, if_exists='append', index=False)
         db.commit()
     db.close()
+
 
 @app.route('/')
 @login_required
