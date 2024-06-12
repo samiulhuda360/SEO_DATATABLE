@@ -19,6 +19,12 @@ $(document).ready(function() {
                 d.drMax = $('#drMax').val();
                 d.trafficMin = $('#trafficMin').val();
                 d.trafficMax = $('#trafficMax').val();
+                d.clientUrl = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(0).val();
+                d.rootDomain = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(1).val();
+                d.anchor = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(2).val();
+                d.niche = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(3).val();
+                d.placedLink = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(4).val();
+                d.placedOn = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(5).val();
             },
             dataSrc: function(json) {
                 return json.data;
@@ -133,8 +139,7 @@ $(document).ready(function() {
 
     // Event handler for text search inputs
     $('#seoDataTable thead tr:eq(1) th input[type="text"]').on('keyup change', function() {
-        let columnIndex = $(this).closest('th').index();
-        table.column(columnIndex).search(this.value).draw();
+        table.draw();
     });
 
     // Event handler for numeric range inputs
