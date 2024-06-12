@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_cors import CORS
 import sqlite3
@@ -38,16 +38,16 @@ def login():
         # Retrieve credentials securely from environment variables
         correct_username = os.environ.get('ADMIN_USERNAME', 'default_user')  # Change default to a non-sensitive placeholder
         correct_password = os.environ.get('ADMIN_PASSWORD', 'default_password')  # Change default to a non-sensitive placeholder
-
         if username == correct_username and password == correct_password:
             user = User(id=1)  # Ensure that the User class and id handling are correctly set up
             login_user(user)
+            flash('Login successful!', 'success')
+            print("Session:", dict(session))
             return redirect(url_for('seo_data'))
         else:
             flash('Invalid credentials. Please try again.', 'error')
-
+            
     return render_template('login.html')
-
 
 @app.route('/logout')
 def logout():
