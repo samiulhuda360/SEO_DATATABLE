@@ -190,19 +190,4 @@ $('#pasteButton').on('click', function() {
     });
 });
 
-
-
-function pasteDataToTextarea(clipText) {
-    let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-    let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
-    let combinedData = new Set([...existingData, ...newData]);
-    $('#domainFilter').val(Array.from(combinedData).join('\n'));
-    $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
-        $(this).text('');
-        $(this).show();
-    });
-}
-
-
-
 });
