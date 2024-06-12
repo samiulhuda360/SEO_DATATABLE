@@ -7,6 +7,8 @@ from datetime import date
 from flask import g
 from dotenv import load_dotenv
 import os
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 load_dotenv()
