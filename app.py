@@ -156,6 +156,21 @@ def get_data():
     order_direction = request.args.get('order[0][dir]', 'asc')
     order_column = ['uploaddate', 'clienturl', 'rootdomain', 'anchor', 'niche', 'rd', 'dr', 'traffic', 'placedlink', 'placedon'][int(order_column_index)]
 
+    # Custom filtering parameters
+    exclude_domains = request.args.getlist('excludeDomains[]')
+    rd_min = request.args.get('rdMin')
+    rd_max = request.args.get('rdMax')
+    dr_min = request.args.get('drMin')
+    dr_max = request.args.get('drMax')
+    traffic_min = request.args.get('trafficMin')
+    traffic_max = request.args.get('trafficMax')
+    client_url = request.args.get('clientUrl', '')
+    root_domain = request.args.get('rootDomain', '')
+    anchor = request.args.get('anchor', '')
+    niche = request.args.get('niche', '')
+    placed_link = request.args.get('placedLink', '')
+    placed_on = request.args.get('placedOn', '')
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -163,13 +178,68 @@ def get_data():
     cursor.execute('SELECT COUNT(*) FROM uploads')
     records_total = cursor.fetchone()[0]
 
-    # Filtering logic
+    # Base query
     query = 'SELECT * FROM uploads WHERE placedon NOT IN (SELECT domain FROM blacklist_domains)'
     params = []
+
+    # Global search value
     if search_value:
         query += ' AND (clienturl LIKE ? OR rootdomain LIKE ? OR anchor LIKE ? OR niche LIKE ? OR placedlink LIKE ? OR placedon LIKE ?)'
         search_value_wildcard = f'%{search_value}%'
         params.extend([search_value_wildcard] * 6)
+
+    # Custom filters
+    if exclude_domains:
+        query += ' AND ' + ' AND '.join(['placedon NOT LIKE ?' for _ in exclude_domains])
+        params.extend([f'%{domain}%' for domain in exclude_domains])
+
+    if rd_min:
+        query += ' AND rd >= ?'
+        params.append(rd_min)
+
+    if rd_max:
+        query += ' AND rd <= ?'
+        params.append(rd_max)
+
+    if dr_min:
+        query += ' AND dr >= ?'
+        params.append(dr_min)
+
+    if dr_max:
+        query += ' AND dr <= ?'
+        params.append(dr_max)
+
+    if traffic_min:
+        query += ' AND traffic >= ?'
+        params.append(traffic_min)
+
+    if traffic_max:
+        query += ' AND traffic <= ?'
+        params.append(traffic_max)
+
+    if client_url:
+        query += ' AND clienturl LIKE ?'
+        params.append(f'%{client_url}%')
+
+    if root_domain:
+        query += ' AND rootdomain LIKE ?'
+        params.append(f'%{root_domain}%')
+
+    if anchor:
+        query += ' AND anchor LIKE ?'
+        params.append(f'%{anchor}%')
+
+    if niche:
+        query += ' AND niche LIKE ?'
+        params.append(f'%{niche}%')
+
+    if placed_link:
+        query += ' AND placedlink LIKE ?'
+        params.append(f'%{placed_link}%')
+
+    if placed_on:
+        query += ' AND placedon LIKE ?'
+        params.append(f'%{placed_on}%')
 
     # Total filtered records count
     cursor.execute(f'SELECT COUNT(*) FROM ({query})', params)
