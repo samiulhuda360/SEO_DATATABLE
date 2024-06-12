@@ -38,19 +38,20 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # Retrieve credentials securely from environment variables
-        correct_username = os.environ.get('ADMIN_USERNAME', 'default_user')  # Change default to a non-sensitive placeholder
-        correct_password = os.environ.get('ADMIN_PASSWORD', 'default_password')  # Change default to a non-sensitive placeholder
+        correct_username = os.environ.get('ADMIN_USERNAME', 'default_user')
+        correct_password = os.environ.get('ADMIN_PASSWORD', 'default_password')
         if username == correct_username and password == correct_password:
-            user = User(id=1)  # Ensure that the User class and id handling are correctly set up
+            user = User(id=1)
             login_user(user)
             flash('Login successful!', 'success')
             print("Session:", dict(session))
+            print("Is Authenticated:", current_user.is_authenticated)
             return redirect(url_for('seo_data'))
         else:
             flash('Invalid credentials. Please try again.', 'error')
             
     return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
