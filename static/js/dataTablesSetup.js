@@ -186,22 +186,44 @@ $('#copyButton').on('click', function() {
 $('#pasteButton').on('click', function() {
     if (navigator.clipboard) {
         navigator.clipboard.readText().then(function(clipText) {
-            pasteDataToTextarea(clipText);
+            console.log("Clipboard text:", clipText); // Debugging line to check clipboard text
+            let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+            let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+            let combinedData = new Set([...existingData, ...newData]); // Combine and ensure unique values using Set
+            $('#domainFilter').val(Array.from(combinedData).join('\n'));
+            console.log("New value in textarea:", $('#domainFilter').val()); // Debugging line to check the new value
+            $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+                $(this).text('');
+                $(this).show();
+            });
         }).catch(function(err) {
+            console.error("Error reading clipboard:", err); // Debugging line to log errors
             $('#statusMessage').text('Failed to paste data!').fadeOut(3000, function() {
                 $(this).text('');
                 $(this).show();
             });
         });
     } else {
+        console.log("Fallback for unsupported Clipboard API"); // Debugging line for fallback check
         // Fallback for browsers that do not support the Clipboard API
         let textarea = $('<textarea>').appendTo('body').focus();
         document.execCommand('paste');
         let clipText = textarea.val();
         textarea.remove();
-        pasteDataToTextarea(clipText);
+
+        console.log("Clipboard text (fallback):", clipText); // Debugging line to check clipboard text in fallback
+        let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+        let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
+        let combinedData = new Set([...existingData, ...newData]);
+        $('#domainFilter').val(Array.from(combinedData).join('\n'));
+        console.log("New value in textarea (fallback):", $('#domainFilter').val()); // Debugging line to check the new value
+        $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
+            $(this).text('');
+            $(this).show();
+        });
     }
 });
+
 
 function pasteDataToTextarea(clipText) {
     let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
