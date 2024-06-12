@@ -43,7 +43,6 @@ def login():
         if username == correct_username and password == correct_password:
             user = User(id=1)
             login_user(user)
-            flash('Login successful!', 'success')
             print("Session:", dict(session))
             print("Is Authenticated:", current_user.is_authenticated)
             return redirect(url_for('seo_data'))
