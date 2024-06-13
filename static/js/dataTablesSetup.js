@@ -25,6 +25,7 @@ $(document).ready(function() {
                 d.niche = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(3).val();
                 d.placedLink = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(4).val();
                 d.placedOn = $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(5).val();
+                d.export_all = 'false';
             },
             dataSrc: function(json) {
                 return json.data;
@@ -82,22 +83,59 @@ $(document).ready(function() {
                     var dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
                     return dateString + '-Seo-data';
                 },
-                customize: function(xlsx) {
-                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                    $('row:first', sheet).remove();
-                    var headers = '<row r="1">' +
-                        '<c t="inlineStr" r="A1"><is><t>Date</t></is></c>' +
-                        '<c t="inlineStr" r="B1"><is><t>Client URL</t></is></c>' +
-                        '<c t="inlineStr" r="C1"><is><t>Root Domain</t></is></c>' +
-                        '<c t="inlineStr" r="D1"><is><t>Anchor</t></is></c>' +
-                        '<c t="inlineStr" r="E1"><is><t>Niche</t></is></c>' +
-                        '<c t="inlineStr" r="F1"><is><t>RD</t></is></c>' +
-                        '<c t="inlineStr" r="G1"><is><t>DR</t></is></c>' +
-                        '<c t="inlineStr" r="H1"><is><t>Traffic</t></is></c>' +
-                        '<c t="inlineStr" r="I1"><is><t>Placed Link</t></is></c>' +
-                        '<c t="inlineStr" r="J1"><is><t>Placed On</t></is></c>' +
-                        '</row>';
-                    sheet.childNodes[0].childNodes[1].innerHTML = headers + sheet.childNodes[0].childNodes[1].innerHTML;
+                action: function ( e, dt, button, config ) {
+                    // Fetch all data
+                    var filters = {
+                        excludeDomains: excludeDomains,
+                        rdMin: $('#rdMin').val(),
+                        rdMax: $('#rdMax').val(),
+                        drMin: $('#drMin').val(),
+                        drMax: $('#drMax').val(),
+                        trafficMin: $('#trafficMin').val(),
+                        trafficMax: $('#trafficMax').val(),
+                        clientUrl: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(0).val(),
+                        rootDomain: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(1).val(),
+                        anchor: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(2).val(),
+                        niche: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(3).val(),
+                        placedLink: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(4).val(),
+                        placedOn: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(5).val(),
+                        export_all: 'true'
+                    };
+            
+                    $.ajax({
+                        url: '/api/data',
+                        type: 'GET',
+                        data: filters,
+                        success: function(response) {
+                            var data = response.data.map(row => [
+                                row.uploaddate,
+                                row.clienturl,
+                                row.rootdomain,
+                                row.anchor,
+                                row.niche,
+                                row.rd,
+                                row.dr,
+                                row.traffic,
+                                row.placedlink,
+                                row.placedon
+                            ]);
+            
+                            var headers = [
+                                'Date', 'Client URL', 'Root Domain', 'Anchor', 'Niche', 'RD', 'DR', 'Traffic', 'Placed Link', 'Placed On'
+                            ];
+            
+                            var wb = XLSX.utils.book_new();
+                            var ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+                            XLSX.utils.book_append_sheet(wb, ws, 'SEO Data');
+            
+                            var date = new Date();
+                            var dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+                            XLSX.writeFile(wb, dateString + '-Seo-data.xlsx');
+                        },
+                        error: function() {
+                            alert('Failed to export data to Excel.');
+                        }
+                    });
                 }
             },
             {
@@ -108,9 +146,63 @@ $(document).ready(function() {
                     var dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
                     return dateString + '-Seo-data';
                 },
-                customize: function(csv) {
-                    var headers = 'Date,Client URL,Root Domain,Anchor,Niche,RD,DR,Traffic,Placed Link,Placed On\n';
-                    return headers + csv;
+                action: function ( e, dt, button, config ) {
+                    // Fetch all data
+                    var filters = {
+                        excludeDomains: excludeDomains,
+                        rdMin: $('#rdMin').val(),
+                        rdMax: $('#rdMax').val(),
+                        drMin: $('#drMin').val(),
+                        drMax: $('#drMax').val(),
+                        trafficMin: $('#trafficMin').val(),
+                        trafficMax: $('#trafficMax').val(),
+                        clientUrl: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(0).val(),
+                        rootDomain: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(1).val(),
+                        anchor: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(2).val(),
+                        niche: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(3).val(),
+                        placedLink: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(4).val(),
+                        placedOn: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(5).val(),
+                        export_all: 'true'
+                    };
+
+                    $.ajax({
+                        url: '/api/data',
+                        type: 'GET',
+                        data: filters,
+                        success: function(response) {
+                            var data = response.data.map(row => [
+                                row.uploaddate,
+                                row.clienturl,
+                                row.rootdomain,
+                                row.anchor,
+                                row.niche,
+                                row.rd,
+                                row.dr,
+                                row.traffic,
+                                row.placedlink,
+                                row.placedon
+                            ]);
+
+                            var headers = 'Date,Client URL,Root Domain,Anchor,Niche,RD,DR,Traffic,Placed Link,Placed On\n';
+                            var csv = headers + data.map(row => row.join(',')).join('\n');
+
+                            var date = new Date();
+                            var dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+                            var filename = dateString + '-Seo-data.csv';
+
+                            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                            var link = document.createElement('a');
+                            if (link.download !== undefined) {
+                                var url = URL.createObjectURL(blob);
+                                link.setAttribute('href', url);
+                                link.setAttribute('download', filename);
+                                link.style.visibility = 'hidden';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            }
+                        }
+                    });
                 }
             }
         ]
@@ -147,39 +239,69 @@ $(document).ready(function() {
         table.draw(); // Redraw table to apply the custom search
     });
 
-    
+        
 // Copy visible data from 'Placed On' column to clipboard
 $('#copyButton').on('click', function() {
-    let data = new Set(); // Use a Set to ensure unique values
-    table.column(9, { search: 'applied' }).data().each(function(value, index) {
-        if (value) {
-            data.add(value); // Add value to Set, which automatically handles duplicates
+    var filters = {
+        excludeDomains: excludeDomains,
+        rdMin: $('#rdMin').val(),
+        rdMax: $('#rdMax').val(),
+        drMin: $('#drMin').val(),
+        drMax: $('#drMax').val(),
+        trafficMin: $('#trafficMin').val(),
+        trafficMax: $('#trafficMax').val(),
+        clientUrl: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(0).val(),
+        rootDomain: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(1).val(),
+        anchor: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(2).val(),
+        niche: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(3).val(),
+        placedLink: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(4).val(),
+        placedOn: $('#seoDataTable thead tr:eq(1) th input[type="text"]').eq(5).val(),
+        export_all: 'true'
+    };
+
+    $.ajax({
+        url: '/api/data',
+        type: 'GET',
+        data: filters,
+        success: function(response) {
+            let data = new Set(); // Use a Set to ensure unique values
+            response.data.forEach(function(row) {
+                if (row.placedon) {
+                    data.add(row.placedon); // Add value to Set, which automatically handles duplicates
+                }
+            });
+            let dataString = Array.from(data).join("\n");  // Convert Set to Array and join with newline character
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(dataString).then(function() {
+                    $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
+                        $(this).text('');
+                        $(this).show();
+                    });
+                }, function(err) {
+                    $('#statusMessage').text('Failed to copy data!').fadeOut(3000, function() {
+                        $(this).text('');
+                        $(this).show();
+                    });
+                });
+            } else {
+                // Fallback for browsers that do not support the Clipboard API
+                let textarea = $('<textarea>').val(dataString).appendTo('body').select();
+                document.execCommand('copy');
+                textarea.remove();
+                $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
+                    $(this).text('');
+                    $(this).show();
+                });
+            }
+        },
+        error: function() {
+            $('#statusMessage').text('Failed to fetch data for copying!').fadeOut(3000, function() {
+                $(this).text('');
+                $(this).show();
+            });
         }
     });
-    let dataString = Array.from(data).join("\n");  // Convert Set to Array and join with newline character
-
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(dataString).then(function() {
-            $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
-                $(this).text('');
-                $(this).show();
-            });
-        }, function(err) {
-            $('#statusMessage').text('Failed to copy data!').fadeOut(3000, function() {
-                $(this).text('');
-                $(this).show();
-            });
-        });
-    } else {
-        // Fallback for browsers that do not support the Clipboard API
-        let textarea = $('<textarea>').val(dataString).appendTo('body').select();
-        document.execCommand('copy');
-        textarea.remove();
-        $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
-            $(this).text('');
-            $(this).show();
-        });
-    }
 });
 
 // Paste data from clipboard to 'domainFilter'
@@ -211,6 +333,7 @@ $('#pasteButton').on('click', function() {
         });
     }
 });
+
 
 
 });

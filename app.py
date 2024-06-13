@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 app.config['SESSION_COOKIE_SECURE'] = False
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
-app.config['SERVER_NAME'] = '45.55.197.166'
+# app.config['SERVER_NAME'] = '45.55.197.166'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 # Initialize CORS
 CORS(app)
@@ -175,6 +175,8 @@ def get_data():
     placed_link = request.args.get('placedLink', '')
     placed_on = request.args.get('placedOn', '')
 
+    export_all = request.args.get('export_all', 'false').lower() == 'true'
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -250,8 +252,10 @@ def get_data():
     records_filtered = cursor.fetchone()[0]
 
     # Fetch the data with ordering and pagination
-    query += f' ORDER BY {order_column} {order_direction} LIMIT ? OFFSET ?'
-    params.extend([length, start])
+    if not export_all:
+        query += f' ORDER BY {order_column} {order_direction} LIMIT ? OFFSET ?'
+        params.extend([length, start])
+    
     cursor.execute(query, params)
     data = cursor.fetchall()
 
