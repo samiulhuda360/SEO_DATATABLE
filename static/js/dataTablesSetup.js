@@ -208,10 +208,13 @@ $(document).ready(function() {
         ]
     });
 
-    // Handle domain exclusion form submission
+   // Handle domain exclusion form submission
     $('#domainExclusionMaterialForm').on('submit', function(e) {
         e.preventDefault();
         excludeDomains = $('#domainFilter').val().toLowerCase().split('\n').map(domain => domain.trim());
+        
+        console.log("Excluding domains:", excludeDomains); // Log the excluded domains for debugging
+        
         table.draw(); // Trigger a redraw to apply the new exclusion filter
     });
 
