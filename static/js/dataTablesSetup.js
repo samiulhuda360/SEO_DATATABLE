@@ -279,7 +279,7 @@ $(document).ready(function() {
                     });
                 } else {
                     console.log("Data is within limit, copying to clipboard."); // Log data within limit
-                    if (navigator.clipboard) {
+                    if (navigator.clipboard && document.hasFocus()) {
                         navigator.clipboard.writeText(dataString).then(function() {
                             console.log("Data copied to clipboard successfully!"); // Log successful copy
                             $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
@@ -315,6 +315,7 @@ $(document).ready(function() {
                 });
             }
         });
+        
         
     });
 
