@@ -316,6 +316,7 @@ $(document).ready(function() {
             }
         });
         
+    });
 
     // Paste button functionality
     $('#pasteButton').on('click', function() {
