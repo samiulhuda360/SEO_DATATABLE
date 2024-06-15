@@ -239,7 +239,8 @@ $(document).ready(function() {
         table.draw(); // Redraw table to apply the custom search
     });
 
-// Copy visible data from 'Placed On' column to clipboard or download Excel for large datasets
+        
+// Copy visible data from 'Placed On' column to clipboard
 $('#copyButton').on('click', function() {
     var filters = {
         excludeDomains: excludeDomains,
@@ -274,61 +275,27 @@ $('#copyButton').on('click', function() {
             });
             let dataString = Array.from(data).join("\n");  // Convert Set to Array and join with newline character
 
-            // Check if data is too large to copy to clipboard
-            if (dataString.length > 100000) { // Adjust the threshold as needed
-                // Create and download an Excel file
-                var data = response.data.map(row => [
-                    row.uploaddate,
-                    row.clienturl,
-                    row.rootdomain,
-                    row.anchor,
-                    row.niche,
-                    row.rd,
-                    row.dr,
-                    row.traffic,
-                    row.placedlink,
-                    row.placedon
-                ]);
-
-                var headers = [
-                    'Date', 'Client URL', 'Root Domain', 'Anchor', 'Niche', 'RD', 'DR', 'Traffic', 'Placed Link', 'Placed On'
-                ];
-
-                var wb = XLSX.utils.book_new();
-                var ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-                XLSX.utils.book_append_sheet(wb, ws, 'SEO Data');
-
-                var date = new Date();
-                var dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-                XLSX.writeFile(wb, dateString + '-Seo-data.xlsx');
-
-                $('#statusMessage').text('Data is too large to copy. Downloading as Excel file.').fadeOut(3000, function() {
-                    $(this).text('');
-                    $(this).show();
-                });
-            } else {
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(dataString).then(function() {
-                        $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
-                            $(this).text('');
-                            $(this).show();
-                        });
-                    }, function(err) {
-                        $('#statusMessage').text('Failed to copy data!').fadeOut(3000, function() {
-                            $(this).text('');
-                            $(this).show();
-                        });
-                    });
-                } else {
-                    // Fallback for browsers that do not support the Clipboard API
-                    let textarea = $('<textarea>').val(dataString).appendTo('body').select();
-                    document.execCommand('copy');
-                    textarea.remove();
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(dataString).then(function() {
                     $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
                         $(this).text('');
                         $(this).show();
                     });
-                }
+                }, function(err) {
+                    $('#statusMessage').text('Failed to copy data!').fadeOut(3000, function() {
+                        $(this).text('');
+                        $(this).show();
+                    });
+                });
+            } else {
+                // Fallback for browsers that do not support the Clipboard API
+                let textarea = $('<textarea>').val(dataString).appendTo('body').select();
+                document.execCommand('copy');
+                textarea.remove();
+                $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
+                    $(this).text('');
+                    $(this).show();
+                });
             }
         },
         error: function(xhr, status, error) {
@@ -341,7 +308,6 @@ $('#copyButton').on('click', function() {
         }
     });
 });
-
 
 
 // Paste data from clipboard to 'domainFilter'
