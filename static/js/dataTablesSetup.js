@@ -249,6 +249,7 @@ $(document).ready(function() {
             contentType: "application/json", // Set the content type to JSON
             data: JSON.stringify(filters), // Convert the filters object to a JSON string
             success: function(response) {
+                console.log("Server response:", response); // Log server response
                 let data = new Set(); // Use a Set to ensure unique values
                 response.data.forEach(function(row) {
                     if (row.placedon) {
@@ -256,38 +257,44 @@ $(document).ready(function() {
                     }
                 });
                 let dataString = Array.from(data).join("\n");  // Convert Set to Array and join with newline character
-
+                console.log("Data string length:", dataString.length); // Log data string length
+        
                 // Check if data is too large to copy to clipboard
                 if (dataString.length > 100000) { // Adjust the threshold as needed
+                    console.log("Data is too large to copy, generating Excel file."); // Log data too large
                     // Create and download an Excel file
                     var dataArray = Array.from(data).map(value => [value]);
-
+        
                     var wb = XLSX.utils.book_new();
                     var ws = XLSX.utils.aoa_to_sheet([['Placed On'], ...dataArray]);
                     XLSX.utils.book_append_sheet(wb, ws, 'SEO Data');
-
+        
                     var date = new Date();
                     var dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
                     XLSX.writeFile(wb, dateString + '-Seo-data.xlsx');
-
+        
                     $('#statusMessage').text('Data is too large to copy. Downloading as Excel file.').fadeOut(3000, function() {
                         $(this).text('');
                         $(this).show();
                     });
                 } else {
+                    console.log("Data is within limit, copying to clipboard."); // Log data within limit
                     if (navigator.clipboard) {
                         navigator.clipboard.writeText(dataString).then(function() {
+                            console.log("Data copied to clipboard successfully!"); // Log successful copy
                             $('#statusMessage').text('Data copied to clipboard successfully!').fadeOut(3000, function() {
                                 $(this).text('');
                                 $(this).show();
                             });
                         }, function(err) {
+                            console.error("Failed to copy data!", err); // Log copy failure
                             $('#statusMessage').text('Failed to copy data!').fadeOut(3000, function() {
                                 $(this).text('');
                                 $(this).show();
                             });
                         });
                     } else {
+                        console.log("Using fallback for copying to clipboard."); // Log fallback usage
                         // Fallback for browsers that do not support the Clipboard API
                         let textarea = $('<textarea>').val(dataString).appendTo('body').select();
                         document.execCommand('copy');
@@ -300,21 +307,20 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Failed to fetch data for copying:', status, error);
-                console.error('Response from server:', xhr.responseText);
+                console.error('Failed to fetch data for copying:', status, error); // Log fetch failure
+                console.error('Response from server:', xhr.responseText); // Log server response
                 $('#statusMessage').text('Failed to fetch data for copying!').fadeOut(3000, function() {
                     $(this).text('');
                     $(this).show();
                 });
             }
         });
-    });
+        
 
     // Paste button functionality
     $('#pasteButton').on('click', function() {
         if (navigator.clipboard) {
             navigator.clipboard.readText().then(function(clipText) {
-                console.log("Clipboard text:", clipText); // Debugging line to check clipboard text
                 let existingData = $('#domainFilter').val().split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
                 let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
                 let combinedData = new Set([...existingData, ...newData]); // Combine and ensure unique values using Set
