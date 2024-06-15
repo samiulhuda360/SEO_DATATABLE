@@ -149,33 +149,58 @@ def seo_data():
 
 
 
-@app.route('/api/data')
+@app.route('/api/data', methods=['GET', 'POST'])
 @login_required
 def get_data():
-    draw = request.args.get('draw')
-    start = int(request.args.get('start', 0))
-    length = int(request.args.get('length', 10))
-    search_value = request.args.get('search[value]', '')
-    order_column_index = request.args.get('order[0][column]', 0)
-    order_direction = request.args.get('order[0][dir]', 'asc')
-    order_column = ['uploaddate', 'clienturl', 'rootdomain', 'anchor', 'niche', 'rd', 'dr', 'traffic', 'placedlink', 'placedon'][int(order_column_index)]
+    if request.method == 'POST':
+        data = request.get_json()
+        draw = data.get('draw')
+        start = int(data.get('start', 0))
+        length = int(data.get('length', 10))
+        search_value = data.get('search[value]', '')
+        order_column_index = data.get('order[0][column]', 0)
+        order_direction = data.get('order[0][dir]', 'asc')
+        order_column = ['uploaddate', 'clienturl', 'rootdomain', 'anchor', 'niche', 'rd', 'dr', 'traffic', 'placedlink', 'placedon'][int(order_column_index)]
 
-    # Custom filtering parameters
-    exclude_domains = request.args.getlist('excludeDomains[]')
-    rd_min = request.args.get('rdMin')
-    rd_max = request.args.get('rdMax')
-    dr_min = request.args.get('drMin')
-    dr_max = request.args.get('drMax')
-    traffic_min = request.args.get('trafficMin')
-    traffic_max = request.args.get('trafficMax')
-    client_url = request.args.get('clientUrl', '')
-    root_domain = request.args.get('rootDomain', '')
-    anchor = request.args.get('anchor', '')
-    niche = request.args.get('niche', '')
-    placed_link = request.args.get('placedLink', '')
-    placed_on = request.args.get('placedOn', '')
+        # Custom filtering parameters
+        exclude_domains = data.get('excludeDomains', [])
+        rd_min = data.get('rdMin')
+        rd_max = data.get('rdMax')
+        dr_min = data.get('drMin')
+        dr_max = data.get('drMax')
+        traffic_min = data.get('trafficMin')
+        traffic_max = data.get('trafficMax')
+        client_url = data.get('clientUrl', '')
+        root_domain = data.get('rootDomain', '')
+        anchor = data.get('anchor', '')
+        niche = data.get('niche', '')
+        placed_link = data.get('placedLink', '')
+        placed_on = data.get('placedOn', '')
+        export_all = data.get('export_all', 'false').lower() == 'true'
+    else:
+        draw = request.args.get('draw')
+        start = int(request.args.get('start', 0))
+        length = int(request.args.get('length', 10))
+        search_value = request.args.get('search[value]', '')
+        order_column_index = request.args.get('order[0][column]', 0)
+        order_direction = request.args.get('order[0][dir]', 'asc')
+        order_column = ['uploaddate', 'clienturl', 'rootdomain', 'anchor', 'niche', 'rd', 'dr', 'traffic', 'placedlink', 'placedon'][int(order_column_index)]
 
-    export_all = request.args.get('export_all', 'false').lower() == 'true'
+        # Custom filtering parameters
+        exclude_domains = request.args.getlist('excludeDomains[]')
+        rd_min = request.args.get('rdMin')
+        rd_max = request.args.get('rdMax')
+        dr_min = request.args.get('drMin')
+        dr_max = request.args.get('drMax')
+        traffic_min = request.args.get('trafficMin')
+        traffic_max = request.args.get('trafficMax')
+        client_url = request.args.get('clientUrl', '')
+        root_domain = request.args.get('rootDomain', '')
+        anchor = request.args.get('anchor', '')
+        niche = request.args.get('niche', '')
+        placed_link = request.args.get('placedLink', '')
+        placed_on = request.args.get('placedOn', '')
+        export_all = request.args.get('export_all', 'false').lower() == 'true'
 
     conn = get_db()
     cursor = conn.cursor()
