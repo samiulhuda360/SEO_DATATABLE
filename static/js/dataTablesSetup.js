@@ -211,6 +211,16 @@ $(document).ready(function() {
         ]
     });
 
+    // Event handler for text search inputs
+    $('#seoDataTable thead tr:eq(1) th input[type="text"]').on('input', function() {
+        table.draw();
+    });
+
+    // Event handler for numeric range inputs
+    $('#seoDataTable thead tr:eq(1) th input[type="number"]').on('input', function() {
+        table.draw(); // Redraw table to apply the custom search
+    });
+
      // Handle domain exclusion form submission
      $('#domainExclusionMaterialForm').on('submit', function(e) {
         e.preventDefault();
@@ -327,7 +337,6 @@ $(document).ready(function() {
                 let newData = clipText.split('\n').map(domain => domain.trim()).filter(domain => domain !== '');
                 let combinedData = new Set([...existingData, ...newData]); // Combine and ensure unique values using Set
                 $('#domainFilter').val(Array.from(combinedData).join('\n'));
-                console.log("New value in textarea:", $('#domainFilter').val()); // Debugging line to check the new value
                 $('#statusMessage').text('Data pasted successfully!').fadeOut(3000, function() {
                     $(this).text('');
                     $(this).show();
