@@ -211,13 +211,27 @@ $(document).ready(function() {
         ]
     });
 
+   // Reset button functionality
+    $('#resetButton').click(function() {
+        $('#domainFilter').val('');  // Clear the textarea
+        excludeDomains = [];  // Clear the exclude domains array
+        table.search('');           // Clear any searches/filters on the DataTable
+        table.columns().search(''); // Clear column specific searches if any
+        table.draw();               // Redraw the table to its initial state
+    });
+
+    // Prevent sorting when interacting with inputs in DataTables header
+    $('input', table.table().header()).on('click keyup', function(event) {
+        event.stopPropagation();
+    });
+
     // Event handler for text search inputs
-    $('#seoDataTable thead tr:eq(1) th input[type="text"]').on('input', function() {
+    $('#seoDataTable thead tr:eq(1) th input[type="text"]').on('keyup change', function() {
         table.draw();
     });
 
     // Event handler for numeric range inputs
-    $('#seoDataTable thead tr:eq(1) th input[type="number"]').on('input', function() {
+    $('#seoDataTable thead tr:eq(1) th input[type="number"]').on('keyup change', function() {
         table.draw(); // Redraw table to apply the custom search
     });
 
