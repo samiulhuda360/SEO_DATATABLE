@@ -259,6 +259,9 @@ $('#copyButton').on('click', function() {
         export_all: 'true'
     };
 
+    // Log the filters to console for debugging
+    console.log("Filters being sent to server:", filters);
+
     $.ajax({
         url: '/api/data',
         type: 'GET',
@@ -295,7 +298,9 @@ $('#copyButton').on('click', function() {
                 });
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error('Failed to fetch data for copying:', status, error);
+            console.error('Response from server:', xhr.responseText);
             $('#statusMessage').text('Failed to fetch data for copying!').fadeOut(3000, function() {
                 $(this).text('');
                 $(this).show();
@@ -303,6 +308,7 @@ $('#copyButton').on('click', function() {
         }
     });
 });
+
 
 // Paste data from clipboard to 'domainFilter'
 $('#pasteButton').on('click', function() {
@@ -333,7 +339,4 @@ $('#pasteButton').on('click', function() {
         });
     }
 });
-
-
-
 });
