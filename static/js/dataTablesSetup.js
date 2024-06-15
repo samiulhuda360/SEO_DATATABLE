@@ -211,13 +211,16 @@ $(document).ready(function() {
         ]
     });
 
-   // Reset button functionality
+    // Reset button functionality
     $('#resetButton').click(function() {
-        $('#domainFilter').val('');  // Clear the textarea
-        excludeDomains = [];  // Clear the exclude domains array
-        table.search('');           // Clear any searches/filters on the DataTable
-        table.columns().search(''); // Clear column specific searches if any
-        table.draw();               // Redraw the table to its initial state
+        $('#domainFilter').val('');  // Clear the domain exclusion textarea
+        excludeDomains = [];        // Clear the exclude domains array
+
+        // Clear column filters without affecting the domain exclusion input
+        $('#seoDataTable thead tr:eq(1) th input[type="text"]').val('');
+        $('#seoDataTable thead tr:eq(1) th input[type="number"]').val('');
+
+        table.search('').columns().search('').draw();  // Reset all filters on the table
     });
 
     // Prevent sorting when interacting with inputs in DataTables header
