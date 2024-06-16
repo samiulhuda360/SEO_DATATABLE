@@ -306,19 +306,24 @@ def inventory_data():
 @login_required
 def blacklist():
     if request.method == 'POST':
-        domain = request.form.get('domain')
+        domains = request.form.get('domains')
         domain_id = request.form.get('domain_id')
 
-        if 'add' in request.form and domain:
-            # Add domain to the database
+        if 'add' in request.form and domains:
+            # Split the domains by newline and add each to the database
+            domain_list = [domain.strip() for domain in domains.split('\n') if domain.strip()]
             try:
                 with sqlite3.connect('data.db') as conn:
                     cursor = conn.cursor()
-                    cursor.execute('INSERT INTO blacklist_domains (domain) VALUES (?)', (domain,))
+                    for domain in domain_list:
+                        try:
+                            cursor.execute('INSERT INTO blacklist_domains (domain) VALUES (?)', (domain,))
+                        except sqlite3.IntegrityError:
+                            flash(f'Domain "{domain}" already exists in the blacklist', 'error')
                     conn.commit()
-                flash('Domain added successfully', 'success')
-            except sqlite3.IntegrityError:
-                flash('Domain already exists in the blacklist', 'error')
+                flash('Domains added successfully', 'success')
+            except sqlite3.DatabaseError as e:
+                flash(f'Error adding domains: {str(e)}', 'error')
 
         elif 'delete' in request.form and domain_id:
             # Delete domain from the database
@@ -343,6 +348,7 @@ def blacklist():
         domains = []
 
     return render_template('blacklist.html', domains=domains, active_tab='blacklist')
+
 
 
 @app.route('/upload_blacklist', methods=['POST'])

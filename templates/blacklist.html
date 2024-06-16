@@ -18,12 +18,10 @@
         </div>
     {% endif %}
     {% endwith %}
-
     <form method="POST">
-        <input type="text" name="domain" placeholder="Enter domain to add" required>
-        <button type="submit" name="add">Add Domain</button>
+        <textarea name="domains" placeholder="Enter domains to add, one per line" required></textarea>
+        <button type="submit" name="add">Add Domains</button>
     </form>
-
     <table>
         <thead>
             <tr>
