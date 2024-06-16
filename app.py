@@ -324,6 +324,7 @@ def blacklist():
                 flash('Domains added successfully', 'success')
             except sqlite3.DatabaseError as e:
                 flash(f'Error adding domains: {str(e)}', 'error')
+            return redirect(url_for('blacklist'))
 
         elif 'delete' in request.form and domain_id:
             # Delete domain from the database
@@ -335,6 +336,7 @@ def blacklist():
                 flash('Domain removed successfully', 'success')
             except sqlite3.DatabaseError as e:
                 flash(f'Error removing domain: {str(e)}', 'error')
+            return redirect(url_for('blacklist'))
 
     # Fetch current domains from database
     try:

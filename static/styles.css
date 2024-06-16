@@ -245,41 +245,21 @@ button  {
     border-top: 1px solid #ccc; /* Adds a line for visual separation */
 }
 
-.blacklist-content {
-    background-color: #f4f4f4;  /* Example: different background */
-    padding: 20px;
-    margin-top: 10px;
-    border: 1px solid #ddd;  /* Example: add a border */
-}
-
 
 /* Styling for the blacklist management container */
-#blacklist-container {
-    width: 60%;
-    margin: 20px auto;
-    padding: 20px;
-    background: #fff;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-radius: 5px;
-}
-
-#blacklist-container h2 {
-    color: #333;
-    text-align: center;
-}
-
-/* Style for the form inside the blacklist container */
 #blacklist-container form.add-domain-form {
     margin-bottom: 20px;
     text-align: center;
 }
 
-#blacklist-container input[type="text"] {
+#blacklist-container textarea {
     width: 60%;
+    height: 100px; /* Adjust height as needed */
     padding: 8px;
     margin-right: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    resize: vertical; /* Allow vertical resize only */
 }
 
 #blacklist-container button {
@@ -319,6 +299,7 @@ button  {
 #blacklist-container table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
+
 
 #flash-messages .alert {
     padding: 10px;
