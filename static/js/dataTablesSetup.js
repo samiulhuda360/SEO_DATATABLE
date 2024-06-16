@@ -248,8 +248,6 @@ $(document).ready(function() {
         e.preventDefault();
         excludeDomains = $('#domainFilter').val().toLowerCase().split('\n').map(domain => domain.trim());
 
-        console.log("Excluding domains:", excludeDomains); // Log the excluded domains for debugging
-
         table.draw(); // Trigger a redraw to apply the new exclusion filter
     });
 

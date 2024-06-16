@@ -77,6 +77,7 @@ def upload_files():
         try:
             # Process the file, assume it's an Excel file
             df = pd.read_excel(file)
+            print("Columns in uploaded file:", df.columns)
             # Store data in the database
             store_data(df)
             flash('File successfully uploaded and data stored.')
@@ -86,6 +87,7 @@ def upload_files():
 
         return redirect(url_for('upload_files'))  # Redirect after POST to prevent resubmission
     return render_template('upload_files.html')
+
 
 
 def get_db():
@@ -105,6 +107,11 @@ def close_db_wrapper(e=None):
     close_db(e)
 
 def store_data(dataframe):
+    required_columns = {'clienturl', 'rootdomain', 'anchor', 'niche', 'rd', 'dr', 'traffic', 'placedlink', 'placedon'}
+    if not required_columns.issubset(dataframe.columns):
+        missing_columns = required_columns - set(dataframe.columns)
+        raise ValueError(f"Missing required columns: {', '.join(missing_columns)}")
+
     db = get_db()
     cursor = db.cursor()
     cursor.execute('''
@@ -135,11 +142,31 @@ def store_data(dataframe):
     today = date.today()
     dataframe['uploaddate'] = today
 
-    # Save the DataFrame to SQL, if it's not empty
-    if not dataframe.empty:
-        dataframe.to_sql('uploads', db, if_exists='append', index=False)
-        db.commit()
+    # Check for and insert only unique rows
+    for index, row in dataframe.iterrows():
+        cursor.execute('''
+            SELECT COUNT(*) FROM uploads WHERE
+            clienturl = ? AND
+            rootdomain = ? AND
+            anchor = ? AND
+            niche = ? AND
+            rd = ? AND
+            dr = ? AND
+            traffic = ? AND
+            placedlink = ? AND
+            placedon = ? AND
+            uploaddate = ?
+        ''', (row['clienturl'], row['rootdomain'], row['anchor'], row['niche'], row['rd'], row['dr'], row['traffic'], row['placedlink'], row['placedon'], row['uploaddate']))
+        count = cursor.fetchone()[0]
+        if count == 0:
+            cursor.execute('''
+                INSERT INTO uploads (clienturl, rootdomain, anchor, niche, rd, dr, traffic, placedlink, placedon, uploaddate)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (row['clienturl'], row['rootdomain'], row['anchor'], row['niche'], row['rd'], row['dr'], row['traffic'], row['placedlink'], row['placedon'], row['uploaddate']))
+    
+    db.commit()
     db.close()
+
 
 
 @app.route('/')
@@ -147,60 +174,34 @@ def store_data(dataframe):
 def seo_data():
     return render_template('seo_data.html', active_tab='seo_data')
 
-
-
 @app.route('/api/data', methods=['GET', 'POST'])
 @login_required
 def get_data():
-    if request.method == 'POST':
-        data = request.get_json()
-        draw = data.get('draw')
-        start = int(data.get('start', 0))
-        length = int(data.get('length', 10))
-        search_value = data.get('search[value]', '')
-        order_column_index = data.get('order[0][column]', 0)
-        order_direction = data.get('order[0][dir]', 'asc')
-        order_column = ['uploaddate', 'clienturl', 'rootdomain', 'anchor', 'niche', 'rd', 'dr', 'traffic', 'placedlink', 'placedon'][int(order_column_index)]
+    data = request.get_json() if request.method == 'POST' else request.args
 
-        # Custom filtering parameters
-        exclude_domains = data.get('excludeDomains', [])
-        rd_min = data.get('rdMin')
-        rd_max = data.get('rdMax')
-        dr_min = data.get('drMin')
-        dr_max = data.get('drMax')
-        traffic_min = data.get('trafficMin')
-        traffic_max = data.get('trafficMax')
-        client_url = data.get('clientUrl', '')
-        root_domain = data.get('rootDomain', '')
-        anchor = data.get('anchor', '')
-        niche = data.get('niche', '')
-        placed_link = data.get('placedLink', '')
-        placed_on = data.get('placedOn', '')
-        export_all = data.get('export_all', 'false').lower() == 'true'
-    else:
-        draw = request.args.get('draw')
-        start = int(request.args.get('start', 0))
-        length = int(request.args.get('length', 10))
-        search_value = request.args.get('search[value]', '')
-        order_column_index = request.args.get('order[0][column]', 0)
-        order_direction = request.args.get('order[0][dir]', 'asc')
-        order_column = ['uploaddate', 'clienturl', 'rootdomain', 'anchor', 'niche', 'rd', 'dr', 'traffic', 'placedlink', 'placedon'][int(order_column_index)]
+    draw = data.get('draw')
+    start = int(data.get('start', 0))
+    length = int(data.get('length', 10))
+    search_value = data.get('search', {}).get('value', '')
+    order_column_index = int(data.get('order', [{}])[0].get('column', 0))
+    order_direction = data.get('order', [{}])[0].get('dir', 'asc')
+    order_column = ['uploaddate', 'clienturl', 'rootdomain', 'anchor', 'niche', 'rd', 'dr', 'traffic', 'placedlink', 'placedon'][order_column_index]
 
-        # Custom filtering parameters
-        exclude_domains = request.args.getlist('excludeDomains[]')
-        rd_min = request.args.get('rdMin')
-        rd_max = request.args.get('rdMax')
-        dr_min = request.args.get('drMin')
-        dr_max = request.args.get('drMax')
-        traffic_min = request.args.get('trafficMin')
-        traffic_max = request.args.get('trafficMax')
-        client_url = request.args.get('clientUrl', '')
-        root_domain = request.args.get('rootDomain', '')
-        anchor = request.args.get('anchor', '')
-        niche = request.args.get('niche', '')
-        placed_link = request.args.get('placedLink', '')
-        placed_on = request.args.get('placedOn', '')
-        export_all = request.args.get('export_all', 'false').lower() == 'true'
+    exclude_domains = data.get('excludeDomains', [])
+    rd_min = data.get('rdMin')
+    rd_max = data.get('rdMax')
+    dr_min = data.get('drMin')
+    dr_max = data.get('drMax')
+    traffic_min = data.get('trafficMin')
+    traffic_max = data.get('trafficMax')
+    client_url = data.get('clientUrl', '')
+    root_domain = data.get('rootDomain', '')
+    anchor = data.get('anchor', '')
+    niche = data.get('niche', '')
+    placed_link = data.get('placedLink', '')
+    placed_on = data.get('placedOn', '')
+
+    export_all = data.get('export_all', 'false').lower() == 'true'
 
     conn = get_db()
     cursor = conn.cursor()
@@ -210,7 +211,7 @@ def get_data():
     records_total = cursor.fetchone()[0]
 
     # Base query
-    query = 'SELECT * FROM uploads WHERE placedon NOT IN (SELECT domain FROM blacklist_domains)'
+    query = 'SELECT * FROM uploads WHERE 1=1'
     params = []
 
     # Global search value
@@ -221,8 +222,10 @@ def get_data():
 
     # Custom filters
     if exclude_domains:
-        query += ' AND ' + ' AND '.join(['placedon NOT LIKE ?' for _ in exclude_domains])
-        params.extend([f'%{domain}%' for domain in exclude_domains])
+        chunks = [exclude_domains[i:i + 500] for i in range(0, len(exclude_domains), 500)]
+        for chunk in chunks:
+            query += ' AND ' + ' AND '.join(['placedon NOT LIKE ?' for _ in chunk])
+            params.extend([f'%{domain}%' for domain in chunk])
 
     if rd_min:
         query += ' AND rd >= ?'
@@ -294,6 +297,7 @@ def get_data():
     }
 
     return jsonify(response)
+
 
 
 
