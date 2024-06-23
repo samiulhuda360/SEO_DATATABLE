@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_cors import CORS
 import sqlite3
@@ -413,6 +413,13 @@ def flush_uploads():
         flash('Incorrect password, failed to flush database.', 'error')
 
     return redirect(url_for('upload_files'))
+
+@app.route('/download_template')
+def download_template():
+    # Path to the Excel template file
+    template_path = 'path/to/your/template.xlsx'
+
+    return send_file(template_path, as_attachment=True, attachment_filename='SEO_Data_upload_format.xlsx')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -3,16 +3,21 @@
 {% block content %}
     <h2>Upload Files</h2>
     <p>Upload your Excel files here. The file should have the correct format with the specified headers.</p>
-    <form action="{{ url_for('upload_files') }}" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".xlsx, .xls">
-        <button type="submit">Upload File</button>
-    </form>
+    <div class="upload-section">
+        <form action="{{ url_for('upload_files') }}" method="post" enctype="multipart/form-data" class="upload-form">
+            <input type="file" name="file" accept=".xlsx, .xls">
+            <button type="submit">Upload File</button>
+        </form>
+        <form action="{{ url_for('download_template') }}" method="get" class="download-form">
+            <button type="submit" class="aqua-button">Download Template</button>
+        </form>
+    </div>
 
     <div class="form-separator"></div> <!-- CSS styled separator -->
 
     <h2>Upload Blacklist Data</h2>
     <p>Upload your Excel files containing blacklist domains here. The file should contain one column with the header "BlackList Domain".</p>
-    <form action="{{ url_for('upload_blacklist') }}" method="post" enctype="multipart/form_data">
+    <form action="{{ url_for('upload_blacklist') }}" method="post" enctype="multipart/form-data">
         <input type="file" name="blacklist_file" accept=".xlsx, .xls">
         <button type="submit">Upload Blacklist</button>
     </form>
@@ -25,7 +30,6 @@
         <input type="password" name="password" placeholder="Enter password" required>
         <button type="submit">Flush Database</button>
     </form>
-
 
     <div class="form-separator"></div> <!-- Another separator -->
 

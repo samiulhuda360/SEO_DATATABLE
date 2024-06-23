@@ -300,6 +300,34 @@ button  {
     background-color: #f9f9f9;
 }
 
+.upload-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.upload-form, .download-form {
+    margin: 0;
+}
+
+.aqua-button {
+    background-color: #148e8e;
+    color: white; 
+    border: none; 
+    padding: 10px 20px;
+    text-align: center; 
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px; 
+    margin: 4px 20px; 
+    cursor: pointer;
+    border-radius: 4px; 
+}
+
+.aqua-button:hover {
+    background-color: #00cccc; 
+}
+
 
 #flash-messages .alert {
     padding: 10px;
