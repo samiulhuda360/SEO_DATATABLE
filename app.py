@@ -416,10 +416,7 @@ def flush_uploads():
 
 @app.route('/download_template')
 def download_template():
-    # Path to the Excel template file
-    template_path = 'path/to/your/template.xlsx'
-
-    return send_file(template_path, as_attachment=True, attachment_filename='SEO_Data_upload_format.xlsx')
+    return send_file('SEO_Data_upload_format.xlsx')
 
 if __name__ == '__main__':
     app.run(debug=True)
